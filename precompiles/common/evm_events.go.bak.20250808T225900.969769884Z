@@ -5,8 +5,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/sei-protocol/sei-chain/precompiles/abi"
 )
 
 // EmitDelegateEvent emits a Delegate(address,string,uint256) event
