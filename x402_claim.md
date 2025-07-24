@@ -15,3 +15,4 @@ This file records all on-chain transactions that use the `x402` protocol memo ta
 ---
 
 *This file serves as both economic and authorship provenance.*
+- ✅ TX: <txhash> | Memo: x402-payment-confirmation | Amount: 1 SEI | Block: <block#>

@@ -17,14 +17,10 @@ func EmitDelegateEvent(evm *vm.EVM, precompileAddr common.Address, delegator com
 		common.BytesToHash(delegator.Bytes()),
 		crypto.Keccak256Hash([]byte(validator)),
 	}
-	data, err := abi.U256(amount)
-	if err != nil {
-		return err
-	}
 	evm.StateDB.AddLog(&types.Log{
 		Address: precompileAddr,
 		Topics:  topics,
-		Data: data.Bytes(),
+		Data:    amount.Bytes(),
 	})
 	return nil
 }
@@ -36,53 +32,54 @@ func EmitUndelegateEvent(evm *vm.EVM, precompileAddr common.Address, delegator c
 		common.BytesToHash(delegator.Bytes()),
 		crypto.Keccak256Hash([]byte(validator)),
 	}
-	data, err := abi.U256(amount)
-	if err != nil {
-		return err
-	}
 	evm.StateDB.AddLog(&types.Log{
 		Address: precompileAddr,
 		Topics:  topics,
-		Data: data.Bytes(),
+		Data:    amount.Bytes(),
 	})
 	return nil
 }
 
-// EmitBeginRedelegateEvent emits a BeginRedelegate(address,string,string,uint256) event
-func EmitBeginRedelegateEvent(evm *vm.EVM, precompileAddr common.Address, delegator common.Address, srcValidator string, dstValidator string, amount *big.Int) error {
+// EmitRedelegateEvent emits a Redelegate(address,string,string,uint256) event
+func EmitRedelegateEvent(evm *vm.EVM, precompileAddr common.Address, delegator common.Address, srcValidator string, dstValidator string, amount *big.Int) error {
 	topics := []common.Hash{
-		crypto.Keccak256Hash([]byte("BeginRedelegate(address,string,string,uint256)")),
+		crypto.Keccak256Hash([]byte("Redelegate(address,string,string,uint256)")),
 		common.BytesToHash(delegator.Bytes()),
 		crypto.Keccak256Hash([]byte(srcValidator)),
 		crypto.Keccak256Hash([]byte(dstValidator)),
 	}
-	data, err := abi.U256(amount)
-	if err != nil {
-		return err
-	}
 	evm.StateDB.AddLog(&types.Log{
 		Address: precompileAddr,
 		Topics:  topics,
-		Data: data.Bytes(),
+		Data:    amount.Bytes(),
 	})
 	return nil
 }
 
-// EmitCancelUndelegationEvent emits a CancelUndelegation(address,string,uint256) event
-func EmitCancelUndelegationEvent(evm *vm.EVM, precompileAddr common.Address, delegator common.Address, validator string, amount *big.Int) error {
+// EmitValidatorCreatedEvent emits a ValidatorCreated(string,uint256)
+func EmitValidatorCreatedEvent(evm *vm.EVM, precompileAddr common.Address, validator string, amount *big.Int) error {
 	topics := []common.Hash{
-		crypto.Keccak256Hash([]byte("CancelUndelegation(address,string,uint256)")),
-		common.BytesToHash(delegator.Bytes()),
+		crypto.Keccak256Hash([]byte("ValidatorCreated(string,uint256)")),
 		crypto.Keccak256Hash([]byte(validator)),
-	}
-	data, err := abi.U256(amount)
-	if err != nil {
-		return err
 	}
 	evm.StateDB.AddLog(&types.Log{
 		Address: precompileAddr,
-		Topics: topics,
-		Data: data.Bytes(),
+		Topics:  topics,
+		Data:    amount.Bytes(),
+	})
+	return nil
+}
+
+// EmitValidatorEditedEvent emits a ValidatorEdited(string,uint256)
+func EmitValidatorEditedEvent(evm *vm.EVM, precompileAddr common.Address, validator string, amount *big.Int) error {
+	topics := []common.Hash{
+		crypto.Keccak256Hash([]byte("ValidatorEdited(string,uint256)")),
+		crypto.Keccak256Hash([]byte(validator)),
+	}
+	evm.StateDB.AddLog(&types.Log{
+		Address: precompileAddr,
+		Topics:  topics,
+		Data:    amount.Bytes(),
 	})
 	return nil
 }

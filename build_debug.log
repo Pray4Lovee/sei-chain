@@ -1,0 +1,413 @@
+WORK=/tmp/go-build2622976790
+cmd/seid/main.go:9:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/server/cmd (imported by github.com/sei-protocol/sei-chain/cmd/seid); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid
+app/ante.go:4:2: missing go.sum entry for module providing package github.com/CosmWasm/wasmd/x/wasm (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:154:2: missing go.sum entry for module providing package github.com/CosmWasm/wasmd/x/wasm/client (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/ante.go:5:2: missing go.sum entry for module providing package github.com/CosmWasm/wasmd/x/wasm/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/ante.go:6:2: missing go.sum entry for module providing package github.com/CosmWasm/wasmd/x/wasm/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:19:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/baseapp (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:20:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/client (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:21:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/client/grpc/tmservice (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:22:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/client/rpc (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:23:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/codec (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:24:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/codec/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:25:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/crypto/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:26:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/server (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:27:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/server/api (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:28:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/server/config (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:29:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/server/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:30:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/simapp (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/encoding.go:4:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/std (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:31:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/store/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/invariance.go:9:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/storev2/commitment (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/seidb.go:8:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/storev2/rootmulti (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/abci.go:7:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:33:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/types/accesscontrol (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/ante.go:8:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/types/errors (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:35:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/types/genesis (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/export.go:9:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/types/kv (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:36:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/types/module (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/ante.go:9:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/utils/tracing (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:37:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/version (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:38:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/accesscontrol (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:39:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/accesscontrol/client (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:40:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/accesscontrol/constants (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/ante.go:10:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/accesscontrol/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:42:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/accesscontrol/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:43:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/auth (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/ante.go:11:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/auth/ante (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:45:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/auth/client/rest (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:46:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/auth/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/receipt.go:12:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/auth/signing (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:47:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/auth/simulation (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:48:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/auth/tx (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:49:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/auth/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:50:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/auth/vesting (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:51:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/auth/vesting/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:52:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/authz (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:53:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/authz/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:54:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/authz/module (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:55:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/bank (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:56:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/bank/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:57:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/bank/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:58:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/capability (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:59:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/capability/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:60:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/capability/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:61:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/crisis (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:62:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/crisis/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:63:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/crisis/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:64:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/distribution (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:65:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/distribution/client (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:66:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/distribution/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:67:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/distribution/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:68:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/evidence (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:69:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/evidence/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:70:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/evidence/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:71:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/feegrant (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:72:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/feegrant/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:73:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/feegrant/module (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:74:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/genutil (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:75:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/genutil/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:76:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/gov (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:77:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/gov/client (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:78:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/gov/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:79:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/gov/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:80:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/params (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:81:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/params/client (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/ante.go:12:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/params/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:83:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/params/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:84:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/params/types/proposal (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:85:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/slashing (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:86:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/slashing/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:87:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/slashing/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:88:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/staking (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:89:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/staking/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/test_helpers.go:17:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/staking/teststaking (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:90:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/staking/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:91:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/upgrade (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:92:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/upgrade/client (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/ante.go:13:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/upgrade/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:94:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/upgrade/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:95:2: missing go.sum entry for module providing package github.com/cosmos/ibc-go/v3/modules/apps/transfer (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:96:2: missing go.sum entry for module providing package github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:97:2: missing go.sum entry for module providing package github.com/cosmos/ibc-go/v3/modules/apps/transfer/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:98:2: missing go.sum entry for module providing package github.com/cosmos/ibc-go/v3/modules/core (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:99:2: missing go.sum entry for module providing package github.com/cosmos/ibc-go/v3/modules/core/02-client (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:100:2: missing go.sum entry for module providing package github.com/cosmos/ibc-go/v3/modules/core/02-client/client (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:101:2: missing go.sum entry for module providing package github.com/cosmos/ibc-go/v3/modules/core/02-client/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:102:2: missing go.sum entry for module providing package github.com/cosmos/ibc-go/v3/modules/core/05-port/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:103:2: missing go.sum entry for module providing package github.com/cosmos/ibc-go/v3/modules/core/24-host (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/ante.go:14:2: missing go.sum entry for module providing package github.com/cosmos/ibc-go/v3/modules/core/ante (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/ante.go:15:2: missing go.sum entry for module providing package github.com/cosmos/ibc-go/v3/modules/core/keeper (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/eth_replay.go:14:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/common (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/eth_replay.go:15:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/core (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/eth_replay.go:16:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/core/tracing (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/eth_replay.go:17:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/core/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:105:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/ethclient (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/eth_replay.go:18:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/params (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:106:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/rpc (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/eth_replay.go:19:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/tests (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+x/epoch/types/codec.go:8:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/types/msgservice (imported by github.com/sei-protocol/sei-chain/x/epoch/types); to add:
+	go get github.com/sei-protocol/sei-chain/x/epoch/types
+x/epoch/types/query.pb.go:9:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/types/query (imported by github.com/sei-protocol/sei-chain/x/epoch/types); to add:
+	go get github.com/sei-protocol/sei-chain/x/epoch/types
+x/epoch/types/epoch.pb.go:8:2: missing go.sum entry for module providing package github.com/gogo/protobuf/gogoproto (imported by github.com/sei-protocol/sei-chain/x/epoch/types); to add:
+	go get github.com/sei-protocol/sei-chain/x/epoch/types
+x/epoch/types/query.pb.go:11:2: missing go.sum entry for module providing package github.com/gogo/protobuf/grpc (imported by github.com/sei-protocol/sei-chain/x/epoch/types); to add:
+	go get github.com/sei-protocol/sei-chain/x/epoch/types
+x/epoch/types/epoch.pb.go:9:2: missing go.sum entry for module providing package github.com/gogo/protobuf/proto (imported by github.com/sei-protocol/sei-chain/x/epoch/keeper); to add:
+	go get github.com/sei-protocol/sei-chain/x/epoch/keeper
+x/epoch/types/epoch.pb.go:10:2: missing go.sum entry for module providing package github.com/gogo/protobuf/types (imported by github.com/sei-protocol/sei-chain/x/epoch/types); to add:
+	go get github.com/sei-protocol/sei-chain/x/epoch/types
+utils/panic.go:9:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/telemetry (imported by github.com/sei-protocol/sei-chain/utils); to add:
+	go get github.com/sei-protocol/sei-chain/utils
+x/oracle/types/errors.go:6:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/crypto/keys/ed25519 (imported by github.com/sei-protocol/sei-chain/x/oracle/types); to add:
+	go get github.com/sei-protocol/sei-chain/x/oracle/types
+x/oracle/types/keys.go:7:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/types/address (imported by github.com/sei-protocol/sei-chain/app/params); to add:
+	go get github.com/sei-protocol/sei-chain/app/params
+x/oracle/types/test_utils.go:12:2: missing go.sum entry for module providing package github.com/tendermint/tendermint/crypto/secp256k1 (imported by github.com/sei-protocol/sei-chain/x/oracle/keeper); to add:
+	go get github.com/sei-protocol/sei-chain/x/oracle/keeper
+x/oracle/types/test_utils.go:13:2: missing go.sum entry for module providing package github.com/tendermint/tendermint/proto/tendermint/crypto (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+x/evm/types/codec.go:10:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/crypto/codec (imported by github.com/sei-protocol/sei-chain/x/evm/types); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/types
+x/evm/derived/derived.go:4:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1 (imported by github.com/sei-protocol/sei-chain/x/evm/ante); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/ante
+x/evm/types/ethtx/utils.go:9:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/crypto (imported by github.com/sei-protocol/sei-chain/cmd/seid/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid/cmd
+x/evm/types/ethtx/blob_tx.go:11:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/crypto/kzg4844 (imported by github.com/sei-protocol/sei-chain/x/evm/types/ethtx); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/types/ethtx
+x/evm/ante/fee.go:9:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/consensus/misc/eip4844 (imported by github.com/sei-protocol/sei-chain/x/evm/ante); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/ante
+x/evm/ante/fee.go:12:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/core/vm (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+x/evm/keeper/address.go:4:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/store/prefix (imported by github.com/sei-protocol/sei-chain/x/evm/keeper); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/keeper
+x/evm/keeper/msg_server.go:16:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/types/occ (imported by github.com/sei-protocol/sei-chain/x/evm/keeper); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/keeper
+x/evm/keeper/receipt.go:10:2: missing go.sum entry for module providing package github.com/cosmos/iavl (imported by github.com/sei-protocol/sei-chain/cmd/seid/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid/cmd
+x/evm/keeper/replay.go:9:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum (imported by github.com/sei-protocol/sei-chain/x/evm/artifacts/cw1155); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/artifacts/cw1155
+x/evm/keeper/log.go:8:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/common/bitutil (imported by github.com/sei-protocol/sei-chain/x/evm/keeper); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/keeper
+x/evm/keeper/keeper.go:24:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/consensus (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+x/evm/keeper/genesis.go:10:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/core/rawdb (imported by github.com/sei-protocol/sei-chain/x/evm/keeper); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/keeper
+x/evm/keeper/genesis.go:11:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/core/state (imported by github.com/sei-protocol/sei-chain/x/evm/keeper); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/keeper
+x/evm/keeper/genesis.go:13:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/node (imported by github.com/sei-protocol/sei-chain/x/evm/keeper); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/keeper
+x/evm/keeper/genesis.go:14:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/triedb (imported by github.com/sei-protocol/sei-chain/x/evm/keeper); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/keeper
+x/evm/keeper/genesis.go:15:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/triedb/hashdb (imported by github.com/sei-protocol/sei-chain/x/evm/keeper); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/keeper
+x/evm/keeper/genesis.go:16:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/triedb/pathdb (imported by github.com/sei-protocol/sei-chain/x/evm/keeper); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/keeper
+precompiles/bank/bank.go:11:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/accounts/abi (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+precompiles/utils/expected_keepers.go:7:2: missing go.sum entry for module providing package github.com/cosmos/ibc-go/v3/modules/core/03-connection/types (imported by github.com/sei-protocol/sei-chain/precompiles/utils); to add:
+	go get github.com/sei-protocol/sei-chain/precompiles/utils
+precompiles/utils/expected_keepers.go:8:2: missing go.sum entry for module providing package github.com/cosmos/ibc-go/v3/modules/core/04-channel/types (imported by github.com/sei-protocol/sei-chain/precompiles/utils); to add:
+	go get github.com/sei-protocol/sei-chain/precompiles/utils
+precompiles/utils/expected_keepers.go:9:2: missing go.sum entry for module providing package github.com/cosmos/ibc-go/v3/modules/core/exported (imported by github.com/sei-protocol/sei-chain/precompiles/utils); to add:
+	go get github.com/sei-protocol/sei-chain/precompiles/utils
+x/evm/state/statedb.go:7:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/core/stateless (imported by github.com/sei-protocol/sei-chain/x/evm/state); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/state
+x/evm/state/statedb.go:11:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/trie/utils (imported by github.com/sei-protocol/sei-chain/x/evm/state); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/state
+precompiles/bank/legacy/v552/bank.go:19:2: missing go.sum entry for module providing package github.com/tendermint/tendermint/libs/log (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+x/evm/artifacts/cw1155/cw1155.go:13:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/accounts/abi/bind (imported by github.com/sei-protocol/sei-chain/x/evm/artifacts/cw1155); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/artifacts/cw1155
+x/evm/artifacts/cw1155/cw1155.go:16:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/event (imported by github.com/sei-protocol/sei-chain/x/evm/artifacts/cw1155); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/artifacts/cw1155
+x/evm/keeper/receipt.go:12:2: missing go.sum entry for module providing package github.com/sei-protocol/sei-db/proto (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+x/evm/keeper/keeper.go:35:2: missing go.sum entry for module providing package github.com/sei-protocol/sei-db/ss/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+x/evm/keeper/keeper.go:36:2: missing go.sum entry for module providing package github.com/tendermint/tendermint/abci/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+x/evm/keeper/keeper.go:37:2: missing go.sum entry for module providing package github.com/tendermint/tendermint/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+x/oracle/keeper/test_utils.go:22:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/simapp/params (imported by github.com/sei-protocol/sei-chain/x/epoch); to add:
+	go get github.com/sei-protocol/sei-chain/x/epoch
+x/oracle/keeper/test_utils.go:24:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/store (imported by github.com/sei-protocol/sei-chain/cmd/seid/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid/cmd
+x/oracle/keeper/test_utils.go:12:2: missing go.sum entry for module providing package github.com/tendermint/tendermint/crypto (imported by github.com/sei-protocol/sei-chain/x/oracle/keeper); to add:
+	go get github.com/sei-protocol/sei-chain/x/oracle/keeper
+x/oracle/keeper/test_utils.go:15:2: missing go.sum entry for module providing package github.com/tendermint/tendermint/proto/tendermint/types (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+x/oracle/keeper/test_utils.go:16:2: missing go.sum entry for module providing package github.com/tendermint/tm-db (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/params/config.go:7:2: missing go.sum entry for module providing package github.com/tendermint/tendermint/config (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+evmrpc/utils.go:17:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/client/config (imported by github.com/sei-protocol/sei-chain/cmd/seid/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid/cmd
+evmrpc/utils.go:18:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/codec/legacy (imported by github.com/sei-protocol/sei-chain/cmd/seid/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid/cmd
+evmrpc/utils.go:14:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/crypto/hd (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/utils.go:19:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/crypto/keyring (imported by github.com/sei-protocol/sei-chain/cmd/seid/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid/cmd
+evmrpc/state.go:11:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/store/cachekv (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/state.go:12:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/store/iavl (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/tx.go:14:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/accounts (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/block.go:20:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/common/hexutil (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/info.go:15:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/common/math (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/simulate.go:21:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/consensus/ethash (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/simulate.go:25:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/eth (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/filter.go:17:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/eth/filters (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/simulate.go:26:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/eth/tracers (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/tracers.go:16:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/eth/tracers/js (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/tracers.go:17:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/eth/tracers/native (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/simulate.go:27:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/eth/tracers/tracersutils (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/simulate.go:28:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/ethdb (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/block.go:22:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/export (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/endpoints.go:25:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/log (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/send.go:18:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/signer/core/apitypes (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/utils.go:27:2: missing go.sum entry for module providing package github.com/tendermint/tendermint/libs/bytes (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/net.go:8:2: missing go.sum entry for module providing package github.com/tendermint/tendermint/libs/time (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/association.go:19:2: missing go.sum entry for module providing package github.com/tendermint/tendermint/rpc/client (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+evmrpc/block.go:28:2: missing go.sum entry for module providing package github.com/tendermint/tendermint/rpc/coretypes (imported by github.com/sei-protocol/sei-chain/evmrpc); to add:
+	go get github.com/sei-protocol/sei-chain/evmrpc
+precompiles/ibc/legacy/v552/ibc.go:12:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/types/bech32 (imported by github.com/sei-protocol/sei-chain/precompiles/ibc/legacy/v552); to add:
+	go get github.com/sei-protocol/sei-chain/precompiles/ibc/legacy/v552
+wasmbinding/encoder.go:7:2: missing go.sum entry for module providing package github.com/CosmWasm/wasmvm/types (imported by github.com/sei-protocol/sei-chain/wasmbinding); to add:
+	go get github.com/sei-protocol/sei-chain/wasmbinding
+x/epoch/module_simulation.go:10:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/types/simulation (imported by github.com/sei-protocol/sei-chain/x/epoch); to add:
+	go get github.com/sei-protocol/sei-chain/x/epoch
+x/epoch/module_simulation.go:11:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/simulation (imported by github.com/sei-protocol/sei-chain/x/epoch); to add:
+	go get github.com/sei-protocol/sei-chain/x/epoch
+x/epoch/client/cli/query_epoch.go:7:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/client/flags (imported by github.com/sei-protocol/sei-chain/cmd/seid/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid/cmd
+x/evm/client/cli/gov_tx.go:11:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/client/tx (imported by github.com/sei-protocol/sei-chain/x/mint/client/cli); to add:
+	go get github.com/sei-protocol/sei-chain/x/mint/client/cli
+x/evm/client/cli/tx.go:22:2: missing go.sum entry for module providing package github.com/ethereum/go-ethereum/rlp (imported by github.com/sei-protocol/sei-chain/x/evm/client/cli); to add:
+	go get github.com/sei-protocol/sei-chain/x/evm/client/cli
+x/mint/client/cli/tx.go:8:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/gov/client/cli (imported by github.com/sei-protocol/sei-chain/x/mint/client/cli); to add:
+	go get github.com/sei-protocol/sei-chain/x/mint/client/cli
+x/mint/client/rest/rest.go:13:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/client/rest (imported by github.com/sei-protocol/sei-chain/x/mint/client/rest); to add:
+	go get github.com/sei-protocol/sei-chain/x/mint/client/rest
+x/mint/client/rest/query.go:10:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/types/rest (imported by github.com/sei-protocol/sei-chain/x/mint/client/rest); to add:
+	go get github.com/sei-protocol/sei-chain/x/mint/client/rest
+x/mint/client/rest/rest.go:7:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/gov/client/rest (imported by github.com/sei-protocol/sei-chain/x/mint/client/rest); to add:
+	go get github.com/sei-protocol/sei-chain/x/mint/client/rest
+x/oracle/simulation/operations.go:10:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/simapp/helpers (imported by github.com/sei-protocol/sei-chain/x/oracle/simulation); to add:
+	go get github.com/sei-protocol/sei-chain/x/oracle/simulation
+app/app.go:159:2: missing go.sum entry for module providing package github.com/sei-protocol/sei-db/config (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:141:2: missing go.sum entry for module providing package github.com/sei-protocol/sei-db/ss (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+app/app.go:147:2: missing go.sum entry for module providing package github.com/tendermint/tendermint/libs/os (imported by github.com/sei-protocol/sei-chain/app); to add:
+	go get github.com/sei-protocol/sei-chain/app
+cmd/seid/cmd/genwasm.go:7:2: missing go.sum entry for module providing package github.com/CosmWasm/wasmd/x/wasm/client/cli (imported by github.com/sei-protocol/sei-chain/cmd/seid/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid/cmd
+cmd/seid/cmd/root.go:18:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/client/debug (imported by github.com/sei-protocol/sei-chain/cmd/seid/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid/cmd
+cmd/seid/cmd/init.go:22:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/client/input (imported by github.com/sei-protocol/sei-chain/cmd/seid/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid/cmd
+cmd/seid/cmd/root.go:20:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/client/keys (imported by github.com/sei-protocol/sei-chain/cmd/seid/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid/cmd
+cmd/seid/cmd/root.go:21:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/client/pruning (imported by github.com/sei-protocol/sei-chain/cmd/seid/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid/cmd
+cmd/seid/cmd/root.go:27:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/snapshots (imported by github.com/sei-protocol/sei-chain/cmd/seid/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid/cmd
+cmd/seid/cmd/root.go:32:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/auth/client/cli (imported by github.com/sei-protocol/sei-chain/cmd/seid/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid/cmd
+cmd/seid/cmd/root.go:36:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/x/genutil/client/cli (imported by github.com/sei-protocol/sei-chain/cmd/seid/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid/cmd
+tools/hash_verification/iavl/scanner.go:7:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/store/rootmulti (imported by github.com/sei-protocol/sei-chain/tools/migration/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/tools/migration/cmd
+tools/migration/sc/migrator.go:12:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/snapshots/types (imported by github.com/sei-protocol/sei-chain/tools/migration/sc); to add:
+	go get github.com/sei-protocol/sei-chain/tools/migration/sc
+tools/tx-scanner/client/grpc.go:9:2: missing go.sum entry for module providing package github.com/cosmos/cosmos-sdk/types/tx (imported by github.com/sei-protocol/sei-chain/tools/tx-scanner/client); to add:
+	go get github.com/sei-protocol/sei-chain/tools/tx-scanner/client
+cmd/seid/cmd/compact.go:15:2: missing go.sum entry for module providing package github.com/tendermint/tendermint/libs/cli (imported by github.com/sei-protocol/sei-chain/cmd/seid/cmd); to add:
+	go get github.com/sei-protocol/sei-chain/cmd/seid/cmd
