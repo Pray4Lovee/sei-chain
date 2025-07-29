@@ -65,6 +65,9 @@ func NewSimulationAPI(
 		backend:        NewBackend(ctxProvider, keeper, txConfigProvider, tmClient, config, app, antehandler),
 		connectionType: connectionType,
 	}
+	if config.MaxConcurrentSimulationCalls > 0 {
+		api.requestLimiter = semaphore.NewWeighted(int64(config.MaxConcurrentSimulationCalls))
+	}
 	return api
 }
 
@@ -534,35 +537,18 @@ func (b *Backend) getHeader(blockNumber *big.Int) *ethtypes.Header {
 	if ctx.ChainID() == "pacific-1" && ctx.BlockHeight() < b.keeper.UpgradeKeeper().GetDoneHeight(ctx.WithGasMeter(sdk.NewInfiniteGasMeter(1, 1)), "6.2.0") {
 		baseFee = nil
 	}
-	// Get block results to access consensus parameters
-	number := blockNumber.Int64()
-	block, blockErr := blockByNumber(context.Background(), b.tmClient, &number)
-	var gasLimit uint64
-	if blockErr == nil {
-		// Try to get consensus parameters from block results
-		blockRes, blockResErr := blockResultsWithRetry(context.Background(), b.tmClient, &number)
-		if blockResErr == nil && blockRes.ConsensusParamUpdates != nil && blockRes.ConsensusParamUpdates.Block != nil {
-			gasLimit = uint64(blockRes.ConsensusParamUpdates.Block.MaxGas)
-		} else {
-			// Fallback to default if block results unavailable
-			gasLimit = keeper.DefaultBlockGasLimit
-		}
-	} else {
-		// Fallback to default if block unavailable
-		gasLimit = keeper.DefaultBlockGasLimit
-	}
-
 	header := &ethtypes.Header{
 		Difficulty:    common.Big0,
 		Number:        blockNumber,
 		BaseFee:       baseFee,
-		GasLimit:      gasLimit,
+		GasLimit:      b.config.GasCap,
 		Time:          uint64(time.Now().Unix()),
 		ExcessBlobGas: &zeroExcessBlobGas,
 	}
-
+	number := blockNumber.Int64()
+	block, err := blockByNumber(context.Background(), b.tmClient, &number)
 	//TODO: what should happen if an err occurs here?
-	if blockErr == nil {
+	if err == nil {
 		header.ParentHash = common.BytesToHash(block.BlockID.Hash)
 		header.Time = uint64(block.Block.Header.Time.Unix())
 	}
