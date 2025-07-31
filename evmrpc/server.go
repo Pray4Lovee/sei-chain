@@ -99,11 +99,7 @@ func NewEVMHTTPServer(
 		},
 		{
 			Namespace: "eth",
-<<<<<<< HEAD
 			Service:   NewInfoAPI(tmClient, k, ctxProvider, txConfigProvider, homeDir, config.MaxBlocksForLog, ConnectionTypeHTTP, txConfigProvider(LatestCtxHeight).TxDecoder()),
-=======
-			Service:   NewInfoAPI(tmClient, k, ctxProvider, txConfigProvider, homeDir, config.MaxBlocksForLog, ConnectionTypeHTTP),
->>>>>>> d0601342 (Use legacy transaction decoder for historical height (#2234))
 		},
 		{
 			Namespace: "eth",
@@ -211,11 +207,7 @@ func NewEVMWebSocketServer(
 		},
 		{
 			Namespace: "eth",
-<<<<<<< HEAD
 			Service:   NewInfoAPI(tmClient, k, ctxProvider, txConfigProvider, homeDir, config.MaxBlocksForLog, ConnectionTypeWS, txConfigProvider(LatestCtxHeight).TxDecoder()),
-=======
-			Service:   NewInfoAPI(tmClient, k, ctxProvider, txConfigProvider, homeDir, config.MaxBlocksForLog, ConnectionTypeWS),
->>>>>>> d0601342 (Use legacy transaction decoder for historical height (#2234))
 		},
 		{
 			Namespace: "eth",
