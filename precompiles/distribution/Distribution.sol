@@ -37,9 +37,14 @@ interface IDistr {
 
     /// @notice Withdraws validator commission (only callable by the validator operator)
     /// @dev Only the validator operator can withdraw their commission
+<<<<<<< HEAD
     /// @param validator The validator's Sei address (must match caller's validator)
     /// @return success True if commission was withdrawn successfully
     function withdrawValidatorCommission(string memory validator) external returns (bool success);
+=======
+    /// @return success True if commission was withdrawn successfully
+    function withdrawValidatorCommission() external returns (bool success);
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 
     // Queries
     

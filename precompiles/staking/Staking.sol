@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 address constant STAKING_PRECOMPILE_ADDRESS = 0x0000000000000000000000000000000000001005;
 
+<<<<<<< HEAD
 IStaking constant STAKING_CONTRACT = IStaking(STAKING_PRECOMPILE_ADDRESS);
 
 interface IStaking {
@@ -68,6 +69,15 @@ interface IStaking {
 
     // Transactions
 
+=======
+IStaking constant STAKING_CONTRACT = IStaking(
+    STAKING_PRECOMPILE_ADDRESS
+);
+
+interface IStaking {
+    // Transactions
+    
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
     /**
      * @notice Delegate tokens to a validator
      * @param valAddress The validator address to delegate to
@@ -76,12 +86,20 @@ interface IStaking {
      */
     function delegate(
         string memory valAddress
+<<<<<<< HEAD
     ) external payable returns (bool success);
+=======
+    ) payable external returns (bool success);
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 
     /**
      * @notice Redelegate tokens from one validator to another
      * @param srcAddress The source validator address
+<<<<<<< HEAD
      * @param dstAddress The destination validator address
+=======
+     * @param dstAddress The destination validator address  
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
      * @param amount Amount to redelegate in base units
      * @return success True if redelegation was successful
      */
@@ -119,15 +137,26 @@ interface IStaking {
         string memory commissionMaxRate,
         string memory commissionMaxChangeRate,
         uint256 minSelfDelegation
+<<<<<<< HEAD
     ) external payable returns (bool success);
+=======
+    ) payable external returns (bool success);
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 
     /**
      * @notice Edit an existing validator's parameters
      * @param moniker New validator display name
+<<<<<<< HEAD
      * @param commissionRate New commission rate (e.g. "0.10" for 10%)
      *                      Pass empty string "" to not change commission rate
      *                      Note: Commission can only be changed once per 24 hours
      * @param minSelfDelegation New minimum self-delegation amount
+=======
+     * @param commissionRate New commission rate (e.g. "0.10" for 10%) 
+     *                      Pass empty string "" to not change commission rate
+     *                      Note: Commission can only be changed once per 24 hours
+     * @param minSelfDelegation New minimum self-delegation amount in base units
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
      *                         Pass 0 to not change minimum self-delegation
      *                         Note: Can only increase, cannot decrease below current value
      * @return success True if validator edit was successful
@@ -139,17 +168,28 @@ interface IStaking {
     ) external returns (bool success);
 
     // Queries
+<<<<<<< HEAD
 
     /**
      * @notice Get delegation information for a delegator and validator pair
      * @param delegator The delegator's address
+=======
+    
+    /**
+     * @notice Get delegation information for a delegator and validator pair
+     * @param delegator The delegator's address  
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
      * @param valAddress The validator address
      * @return delegation Delegation details including balance and shares
      */
     function delegation(
         address delegator,
         string memory valAddress
+<<<<<<< HEAD
     ) external view returns (Delegation memory delegation);
+=======
+    ) external view returns (Delegation delegation);
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 
     struct Delegation {
         Balance balance;
@@ -167,4 +207,8 @@ interface IStaking {
         uint256 decimals;
         string validator_address;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))

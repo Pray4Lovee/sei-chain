@@ -9,7 +9,10 @@ import (
 
 	"github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 
+<<<<<<< HEAD
 	
+=======
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 
 	putils "github.com/sei-protocol/sei-chain/precompiles/utils"

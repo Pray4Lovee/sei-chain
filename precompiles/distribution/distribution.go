@@ -96,10 +96,20 @@ func (p PrecompileExecutor) Execute(ctx sdk.Context, method *abi.Method, caller 
 		}
 		return p.withdrawMultipleDelegationRewards(ctx, method, caller, args, value)
 	case WithdrawValidatorCommissionMethod:
+<<<<<<< HEAD
 		if readOnly {
 			return nil, 0, errors.New("cannot call distr precompile from staticcall")
 		}
 		return p.withdrawValidatorCommission(ctx, method, caller, args, value)
+=======
+		if err = pcommon.ValidateNonPayable(value); err != nil {
+			return nil, 0, err
+		}
+		if readOnly {
+			return nil, 0, errors.New("cannot call distr precompile from staticcall")
+		}
+		return p.withdrawValidatorCommission(ctx, method, caller)
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 	case RewardsMethod:
 		return p.rewards(ctx, method, args)
 	}
@@ -339,7 +349,11 @@ func getResponseOutput(response *distrtypes.QueryDelegationTotalRewardsResponse)
 	}
 }
 
+<<<<<<< HEAD
 func (p PrecompileExecutor) withdrawValidatorCommission(ctx sdk.Context, method *abi.Method, caller common.Address, args []interface{}, value *big.Int) (ret []byte, remainingGas uint64, rerr error) {
+=======
+func (p PrecompileExecutor) withdrawValidatorCommission(ctx sdk.Context, method *abi.Method, caller common.Address) (ret []byte, remainingGas uint64, rerr error) {
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 	defer func() {
 		if err := recover(); err != nil {
 			ret = nil
@@ -349,6 +363,7 @@ func (p PrecompileExecutor) withdrawValidatorCommission(ctx sdk.Context, method 
 		}
 	}()
 
+<<<<<<< HEAD
 	err := p.validateInput(value, args, 1)
 	if err != nil {
 		rerr = err
@@ -357,13 +372,28 @@ func (p PrecompileExecutor) withdrawValidatorCommission(ctx sdk.Context, method 
 
 	// The caller must be associated with a validator address
 	validatorAddr, err := p.getValidatorFromArg(ctx, args[0])
+=======
+	validatorSeiAddr, found := p.evmKeeper.GetSeiAddress(ctx, caller)
+	if !found {
+		rerr = types.NewAssociationMissingErr(caller.Hex())
+		return
+	}
+
+	validatorAddr := sdk.ValAddress(validatorSeiAddr)
+
+	validator, err := sdk.ValAddressFromBech32(validatorAddr.String())
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 	if err != nil {
 		rerr = err
 		return
 	}
 
 	// Call the distribution keeper to withdraw validator commission
+<<<<<<< HEAD
 	_, err = p.distrKeeper.WithdrawValidatorCommission(ctx, validatorAddr)
+=======
+	_, err = p.distrKeeper.WithdrawValidatorCommission(ctx, validator)
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 	if err != nil {
 		rerr = err
 		return
@@ -373,6 +403,7 @@ func (p PrecompileExecutor) withdrawValidatorCommission(ctx sdk.Context, method 
 	remainingGas = pcommon.GetRemainingGas(ctx, p.evmKeeper)
 	return
 }
+<<<<<<< HEAD
 
 func (p PrecompileExecutor) getValidatorFromArg(ctx sdk.Context, arg interface{}) (sdk.ValAddress, error) {
 	validatorAddress := arg.(string)
@@ -382,3 +413,5 @@ func (p PrecompileExecutor) getValidatorFromArg(ctx sdk.Context, arg interface{}
 	}
 	return validator, nil
 }
+=======
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))

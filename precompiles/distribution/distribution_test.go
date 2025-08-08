@@ -850,7 +850,14 @@ func TestPrecompile_RunAndCalculateGas_SetWithdrawAddress(t *testing.T) {
 	}
 }
 
+<<<<<<< HEAD
 type TestDistributionKeeper struct{}
+=======
+type TestDistributionKeeper struct {
+	seiValAddr sdk.AccAddress
+	t          *testing.T
+}
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 
 func (tk *TestDistributionKeeper) SetWithdrawAddr(ctx sdk.Context, delegatorAddr sdk.AccAddress, withdrawAddr sdk.AccAddress) error {
 	return nil
@@ -861,6 +868,13 @@ func (tk *TestDistributionKeeper) WithdrawDelegationRewards(ctx sdk.Context, del
 }
 
 func (tk *TestDistributionKeeper) WithdrawValidatorCommission(ctx sdk.Context, valAddr sdk.ValAddress) (sdk.Coins, error) {
+<<<<<<< HEAD
+=======
+	if tk.seiValAddr != nil && tk.t != nil {
+		require.Equal(tk.t, sdk.ValAddress(tk.seiValAddr), valAddr)
+	}
+
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 	return sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(50000))), nil
 }
 
@@ -1205,7 +1219,11 @@ func TestWithdrawValidatorCommission_noCommissionToWithdrawRightAfterDelegation(
 
 	// Now test withdrawValidatorCommission
 	abi = pcommon.MustGetABI(f, "abi.json")
+<<<<<<< HEAD
 	args, err = abi.Pack("withdrawValidatorCommission", val.String())
+=======
+	args, err = abi.Pack("withdrawValidatorCommission")
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 	require.Nil(t, err)
 
 	addr = common.HexToAddress(distribution.DistrAddress)
@@ -1245,17 +1263,25 @@ func TestWithdrawValidatorCommission_UnitTest(t *testing.T) {
 	ctx := testApp.NewContext(false, tmtypes.Header{}).WithBlockHeight(2)
 	k := &testApp.EvmKeeper
 
+<<<<<<< HEAD
 	// Set up the mock distribution keeper that always returns commission
 	mockDistrKeeper := &TestDistributionKeeper{}
 
 	// Create a validator address for testing
 	validatorAddress := "seivaloper1reedlc9w8p7jrpqfky4c5k90nea4p6dhk5yqgd"
 
+=======
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 	// Set up caller
 	privKey := testkeeper.MockPrivateKey()
 	seiAddr, evmAddr := testkeeper.PrivateKeyToAddresses(privKey)
 	k.SetAddressMapping(ctx, seiAddr, evmAddr)
 
+<<<<<<< HEAD
+=======
+	// Set up the mock distribution keeper that always returns commission
+	mockDistrKeeper := &TestDistributionKeeper{t: t, seiValAddr: seiAddr}
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 	// Create the precompile with mock keeper
 	p, err := distribution.NewPrecompile(&app.PrecompileKeepers{DistributionKeeper: mockDistrKeeper, EVMKeeper: k})
 	require.Nil(t, err)
@@ -1264,10 +1290,13 @@ func TestWithdrawValidatorCommission_UnitTest(t *testing.T) {
 	withdrawMethod, err := p.ABI.MethodById(p.GetExecutor().(*distribution.PrecompileExecutor).WithdrawValidatorCommissionID)
 	require.Nil(t, err)
 
+<<<<<<< HEAD
 	// Pack the arguments
 	inputs, err := withdrawMethod.Inputs.Pack(validatorAddress)
 	require.Nil(t, err)
 
+=======
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 	// Create EVM state
 	stateDb := state.NewDBImpl(ctx, k, true)
 	evm := vm.EVM{
@@ -1280,7 +1309,11 @@ func TestWithdrawValidatorCommission_UnitTest(t *testing.T) {
 		&evm,
 		evmAddr, // caller
 		evmAddr, // callingContract
+<<<<<<< HEAD
 		append(p.GetExecutor().(*distribution.PrecompileExecutor).WithdrawValidatorCommissionID, inputs...), // input
+=======
+		append(p.GetExecutor().(*distribution.PrecompileExecutor).WithdrawValidatorCommissionID), // input
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 		1000000,       // suppliedGas
 		big.NewInt(0), // value
 		nil,           // hooks
@@ -1335,6 +1368,7 @@ func TestWithdrawValidatorCommission_InputValidation(t *testing.T) {
 		wantErrMsg         string
 	}{
 		{
+<<<<<<< HEAD
 			name:       "empty validator address should fail",
 			wantError:  true,
 			wantErrMsg: "empty address string is not allowed",
@@ -1346,6 +1380,8 @@ func TestWithdrawValidatorCommission_InputValidation(t *testing.T) {
 			wantErrMsg: "decoding bech32 failed: invalid checksum (expected p7jtgl got k5yqgd)",
 		},
 		{
+=======
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 			name:       "sending value to non-payable function should fail",
 			validator:  "seivaloper1reedlc9w8p7jrpqfky4c5k90nea4p6dhk5yqgd",
 			value:      big.NewInt(1),
@@ -1371,7 +1407,10 @@ func TestWithdrawValidatorCommission_InputValidation(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Pack the arguments
+<<<<<<< HEAD
 			inputs, err := withdrawMethod.Inputs.Pack(tc.validator)
+=======
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 			require.Nil(t, err)
 
 			// Call the precompile
@@ -1379,7 +1418,11 @@ func TestWithdrawValidatorCommission_InputValidation(t *testing.T) {
 				&baseEvm,
 				evmAddr, // caller
 				evmAddr, // callingContract
+<<<<<<< HEAD
 				append(p.GetExecutor().(*distribution.PrecompileExecutor).WithdrawValidatorCommissionID, inputs...), // input
+=======
+				append(p.GetExecutor().(*distribution.PrecompileExecutor).WithdrawValidatorCommissionID), // input
+>>>>>>> ca756c04e (Fix gas price mismatch in RPC responses (#2276))
 				1000000,               // suppliedGas
 				tc.value,              // value
 				nil,                   // hooks
