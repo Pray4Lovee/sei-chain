@@ -37,13 +37,6 @@ import (
 	"github.com/sei-protocol/sei-chain/x/evm/types/ethtx"
 )
 
-type JsonRPCRequest struct {
-	JsonRPC string        `json:"jsonrpc"`
-	Method  string        `json:"method"`
-	Params  []interface{} `json:"params"`
-	ID      string        `json:"id"`
-}
-
 const (
 	FlagGasFeeCap = "gas-fee-cap"
 	FlagGas       = "gas-limit"
@@ -112,76 +105,43 @@ func CmdAssociateAddress() *cobra.Command {
 				}
 				priv, err := legacy.PrivKeyFromBytes([]byte(localInfo.PrivKeyArmor))
 				if err != nil {
-				    return err
+					return err
 				}
 				privHex = hex.EncodeToString(priv.Bytes())
 			}
 
 			emptyHash := crypto.Keccak256Hash([]byte{})
-			
 			key, err := crypto.HexToECDSA(privHex)
 			if err != nil {
-			    return err
+				return err
 			}
-			
 			sig, err := crypto.Sign(emptyHash[:], key)
 			if err != nil {
-		            return err
+				return err
 			}
-			
 			R, S, _, err := ethtx.DecodeSignature(sig)
 			if err != nil {
-			    return err
+				return err
 			}
 			V := big.NewInt(int64(sig[64]))
-			
-			txData := evmrpc.AssociateRequest{
-			    V: hex.EncodeToString(V.Bytes()),
-		   	    R: hex.EncodeToString(R.Bytes()),
-	          	    S: hex.EncodeToString(S.Bytes()),
-			}
-
-			paramsJSON, err := json.Marshal(txData)
+			txData := evmrpc.AssociateRequest{V: hex.EncodeToString(V.Bytes()), R: hex.EncodeToString(R.Bytes()), S: hex.EncodeToString(S.Bytes())}
+			bz, err := json.Marshal(txData)
 			if err != nil {
-			    return err
+				return err
 			}
-			
-			var params interface{}
-			if err := json.Unmarshal(bz, &params); err != nil {
-			    return err
-			}
-		        rpcBody := struct {
-			    JsonRPC string        `json:"jsonrpc"`
-	    		    Method  string        `json:"method"`
-	    		    Params  []interface{} `json:"params"`
-			    ID      string        `json:"id"
-			}{
-			    JsonRPC: "2.0",
-			    Method:  "sei_associate",
-			    Params:  []interface{}{params},
-			    ID:      "associate_addr",
-			}
-
-			bodyBytes, err := json.Marshal(rpcBody)
-			if err != nil {
-			    return err
-			}
-			body := string(bodyBytes)
+			body := fmt.Sprintf("{\"jsonrpc\": \"2.0\",\"method\": \"sei_associate\",\"params\":[%s],\"id\":\"associate_addr\"}", string(bz))
 			rpc, err := cmd.Flags().GetString(FlagRPC)
 			if err != nil {
 				return err
 			}
-			
-			req, err := http.NewRequest(http.MethodPost, rpc, strings.NewReader(body))
+			req, err := http.NewRequest(http.MethodGet, rpc, strings.NewReader(body))
 			if err != nil {
-			    return err
+				return err
 			}
-			
 			req.Header.Set("Content-Type", "application/json")
-			
 			res, err := http.DefaultClient.Do(req)
 			if err != nil {
-			    return err
+				return err
 			}
 			defer res.Body.Close()
 			resBody, err := io.ReadAll(res.Body)
