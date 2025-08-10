@@ -259,8 +259,8 @@ func TestStakingPrecompileEventsEmission(t *testing.T) {
 
 		// Now edit the validator
 		newMoniker := "Edited Validator"
-		newCommissionRate := ""  // Empty string to not change commission rate
-		newMinSelfDelegation := big.NewInt(0)  // 0 to not change minimum self-delegation
+		newCommissionRate := ""               // Empty string to not change commission rate
+		newMinSelfDelegation := big.NewInt(0) // 0 to not change minimum self-delegation
 
 		editArgs, err := abi.Pack("editValidator", newMoniker, newCommissionRate, newMinSelfDelegation)
 		require.NoError(t, err)
