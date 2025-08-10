@@ -395,80 +395,92 @@ func (p PrecompileExecutor) createValidator(ctx sdk.Context, method *abi.Method,
 	}
 
 	// Emit EVM event
-	if emitErr := pcommon.EmitValidatorCreatedEvent(evm, p.address, caller, sdk.ValAddress(valAddress).String(), moniker); emitErr != nil {
-		// Log error but don't fail the transaction
+	// Use minSelfDelegation as the *big.Int payload (fits the event signature)
+	if emitErr := pcommon.EmitValidatorCreatedEvent(
+        	evm,
+        	p.address,
+        	sdk.ValAddress(valAddress).String(),
+        	minSelfDelegation, // *big.Int
+	); emitErr != nil {
+
 		ctx.Logger().Error("Failed to emit EVM validator created event", "error", emitErr)
 	}
 
 	return method.Outputs.Pack(true)
 }
 
-func (p PrecompileExecutor) editValidator(ctx sdk.Context, method *abi.Method, caller common.Address, args []interface{}, value *big.Int, hooks *tracing.Hooks, evm *vm.EVM) ([]byte, error) {
-	if err := pcommon.ValidateArgsLength(args, 3); err != nil {
-		return nil, err
-	}
-
-	if err := pcommon.ValidateNonPayable(value); err != nil {
-		return nil, err
-	}
-
-	// Extract arguments
-	moniker := args[0].(string)
-	commissionRateStr := args[1].(string)
-	minSelfDelegation := args[2].(*big.Int)
-
-	// Get validator address (caller's associated Sei address)
-	valAddress, associated := p.evmKeeper.GetSeiAddress(ctx, caller)
-	if !associated {
-		return nil, types.NewAssociationMissingErr(caller.Hex())
-	}
-
-	// Parse commission rate - if empty string, don't change commission
-	var commissionRate *sdk.Dec
-	if commissionRateStr != "" {
-		rate, err := sdk.NewDecFromStr(commissionRateStr)
-		if err != nil {
-			return nil, errors.New("invalid commission rate")
-		}
-		commissionRate = &rate
-	}
-	// If commissionRateStr is empty, commissionRate remains nil
-
-	// Convert min self delegation if not zero
-	var minSelfDelegationInt *sdk.Int
-	if minSelfDelegation != nil && minSelfDelegation.Sign() > 0 {
-		msd := sdk.NewIntFromBigInt(minSelfDelegation)
-		minSelfDelegationInt = &msd
-	}
-	 // If minSelfDelegation is 0, minSelfDelegationPtr remains nil
-
-	description := stakingtypes.Description{
-		Moniker: moniker,
-		// Identity field is not updated to maintain backward compatibility
-	}
-
-	msg := stakingtypes.NewMsgEditValidator(
-		sdk.ValAddress(valAddress),
-		description,
-		commissionRate,
-		minSelfDelegationPtr,
-	)
-	 // Validate message
-	err := msg.ValidateBasic()
-        if err != nil {
+func (p PrecompileExecutor) editValidator(
+        ctx sdk.Context,
+        method *abi.Method,
+        caller common.Address,
+        args []interface{},
+        value *big.Int,
+        hooks *tracing.Hooks,
+        evm *vm.EVM,
+) ([]byte, error) {
+        if err := pcommon.ValidateArgsLength(args, 3); err != nil {
                 return nil, err
-	}
-
-	// Call the staking keeper
-        _, err = p.stakingKeeper.EditValidator(sdk.WrapSDKContext(ctx), msg)
-        if err != nil {
+        }
+        if err := pcommon.ValidateNonPayable(value); err != nil {
                 return nil, err
+        }
 
-	// Emit EVM event
-	if emitErr := pcommon.EmitValidatorEditedEvent(evm, p.address, caller, sdk.ValAddress(valAddress).String(), moniker); emitErr != nil {
-		// Log error but don't fail the transaction
-		ctx.Logger().Error("Failed to emit EVM validator edited event", "error", emitErr)
-	}
+        moniker := args[0].(string)
+        commissionRateStr := args[1].(string)
+        minSelfDelegation := args[2].(*big.Int)
+
+        valAddress, associated := p.evmKeeper.GetSeiAddress(ctx, caller)
+        if !associated {
+                return nil, types.NewAssociationMissingErr(caller.Hex())
+        }
+
+        var commissionRate *sdk.Dec
+        if commissionRateStr != "" {
+                rate, err := sdk.NewDecFromStr(commissionRateStr)
+                if err != nil {
+                        return nil, errors.New("invalid commission rate")
+                }
+                commissionRate = &rate
+        }
+
+        var minSelfDelegationPtr *sdk.Int
+        if minSelfDelegation != nil && minSelfDelegation.Sign() > 0 {
+                msd := sdk.NewIntFromBigInt(minSelfDelegation)
+                minSelfDelegationPtr = &msd
+        }
+
+        description := stakingtypes.Description{
+                Moniker: moniker,
+        }
+
+        msg := stakingtypes.NewMsgEditValidator(
+                sdk.ValAddress(valAddress),
+                description,
+                commissionRate,
+                minSelfDelegationPtr,
+        )
+
+        if err := msg.ValidateBasic(); err != nil {
+                return nil, err
+        }
+        if _, err := p.stakingKeeper.EditValidator(sdk.WrapSDKContext(ctx), msg); err != nil {
+                return nil, err
+        }
+
+         // Emit EVM event (signature: (*vm.EVM, common.Address, string, *big.Int))
+        payload := minSelfDelegation
+        if payload == nil {
+                payload = big.NewInt(0)
+        }
+        if emitErr := pcommon.EmitValidatorEditedEvent(
+                evm,
+                p.address,
+                sdk.ValAddress(valAddress).String(),
+                payload,
+        ); emitErr != nil {
+                // Log error but don't fail the transaction
+                ctx.Logger().Error("Failed to emit EVM validator edited event", "error", emitErr)
+        }
 
 	return method.Outputs.Pack(true)
 }
