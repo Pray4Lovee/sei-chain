@@ -4,6 +4,8 @@ import (
 	"encoding/hex"
 	"math/big"
 	"testing"
+	"bytes"
+   	 "os"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -23,6 +25,28 @@ import (
 	"github.com/stretchr/testify/require"
 	tmtypes "github.com/tendermint/tendermint/proto/tendermint/types"
 )
+
+var stakingABI abi.ABI
+
+func init() {
+    raw, err := os.ReadFile("precompiles/staking/abi.json")
+    if err != nil {
+        panic(err)
+    }
+    parsed, err := abi.JSON(bytes.NewReader(raw))
+    if err != nil {
+        panic(err)
+    }
+    stakingABI = parsed
+}
+
+func eventID(name string) common.Hash {
+    ev, ok := stakingABI.Events[name]
+    if !ok {
+        panic("event not found in ABI: " + name)
+    }
+    return ev.ID
+}
 
 // Using f from staking_test.go
 
@@ -70,7 +94,7 @@ func TestStakingPrecompileEventsEmission(t *testing.T) {
 		log := res.Logs[0]
 
 		// Check event signature
-		expectedSig := pcommon.DelegateEventSig
+		expected := eventID("Delegate")
 		require.Equal(t, expectedSig.Hex(), log.Topics[0])
 
 		// Check indexed delegator address
@@ -116,7 +140,8 @@ func TestStakingPrecompileEventsEmission(t *testing.T) {
 		log := res.Logs[0]
 
 		// Check event signature
-		expectedSig := pcommon.RedelegateEventSig
+		expected := eventID("Redelegate")
+
 		require.Equal(t, expectedSig.Hex(), log.Topics[0])
 
 		// Check indexed delegator address
@@ -161,7 +186,8 @@ func TestStakingPrecompileEventsEmission(t *testing.T) {
 		log := res.Logs[0]
 
 		// Check event signature
-		expectedSig := pcommon.UndelegateEventSig
+		expected := eventID("Undelegate")
+
 		require.Equal(t, expectedSig.Hex(), log.Topics[0])
 
 		// Check indexed delegator address
@@ -216,7 +242,7 @@ func TestStakingPrecompileEventsEmission(t *testing.T) {
 		log := res.Logs[0]
 
 		// Check event signature
-		expectedSig := pcommon.ValidatorCreatedEventSig
+		expected := eventID("ValidatorCreated")
 		require.Equal(t, expectedSig.Hex(), log.Topics[0])
 
 		// Check indexed creator address
@@ -275,7 +301,7 @@ func TestStakingPrecompileEventsEmission(t *testing.T) {
 		log := editRes.Logs[len(editRes.Logs)-1]
 
 		// Check event signature
-		expectedSig := pcommon.ValidatorEditedEventSig
+		expected := eventID("ValidatorEdited"
 		require.Equal(t, expectedSig.Hex(), log.Topics[0])
 
 		// Check indexed editor address
