@@ -1,4 +1,4 @@
-name: CI – Integration & Contracts
+name: CI
 
 on:
   push:
