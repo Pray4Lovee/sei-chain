@@ -6,7 +6,6 @@ on:
 
 jobs:
   codex_review:
-    # Run only for trusted contributors
     if: ${{ contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association) }}
 
     runs-on: ubuntu-latest
@@ -22,26 +21,47 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
 
       - name: Install Codex CLI
-        run: npm i -g @openai/codex
+        run: npm install -g @openai/codex
 
       - name: Compute merge-base diff (compact)
         run: |
           set -euo pipefail
-          BASE_REF='${{ github.event.pull_request.base.ref }}'
+          BASE_REF="${{ github.event.pull_request.base.ref }}"
           git fetch --no-tags origin "$BASE_REF":"refs/remotes/origin/$BASE_REF"
           MB=$(git merge-base "origin/$BASE_REF" HEAD)
           git diff --unified=0 "$MB"..HEAD > pr.diff
           git --no-pager diff --stat "$MB"..HEAD > pr.stat || true
 
-      - name: Build prompt and run Codex (guard + fallback)
+      - name: Run Codex Guard & Fallback Review
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          MAX=${MA
+          codex suggest --diff pr.diff --metadata pr.stat \
+            --title "PR #${PR_NUMBER} Review" \
+            --url "${PR_URL}" > codex_review.md || echo "Codex fallback triggered"
+
+      - name: Comment on PR with Codex Review
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body-path: ./codex_review.md
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Optional Slack Notification
+        if: always()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "text": "Codex review complete for <${{ github.event.pull_request.html_url }}|PR #${{ github.event.pull_request.number }}>"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
