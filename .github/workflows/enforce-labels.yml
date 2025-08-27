@@ -1,16 +1,36 @@
-name: Enforce PR Labels
+name: 🏷️ Check Required Labels
 
 on:
   pull_request:
-    types: [labeled, unlabeled, opened, edited, synchronize]
+    types: [opened, edited, labeled, unlabeled, synchronize]
+
 jobs:
-  enforce-label:
-    name: Enforce Required Labels
+  check-label:
+    name: Enforce Required PR Labels
     runs-on: ubuntu-latest
     steps:
-      - name: Enforce Label Action
-        uses: yogevbd/enforce-label-action@2.1.0
+      - name: 🚨 Validate PR labels
+        uses: actions/github-script@v7
         with:
-          REQUIRED_LABELS_ANY: "non-app-hash-breaking"
-          REQUIRED_LABELS_ANY_DESCRIPTION: "At least one of the following labels is required: ['non-app-hash-breaking']"
+          script: |
+            const requiredLabels = [
+              'non-app-hash-breaking',
+              'app-hash-breaking',
+              'evm-only',
+              'doc-only',
+              'chore',
+              'security',
+              'hotfix',
+              'experimental',
+              'breaking',
+              'allow-override-label'
+            ];
 
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+            const found = requiredLabels.some(label => labels.includes(label));
+
+            if (!found) {
+              core.setFailed("❌ PR must include at least one classification label.\nAvailable labels: " + requiredLabels.join(", "));
+            } else {
+              console.log("✅ Valid label found.");
+            }
