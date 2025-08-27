@@ -53,6 +53,21 @@ func (api *DebugAPI) acquireTraceSemaphore() func() {
 	return func() {} // No-op if semaphore is not active
 }
 
+func (api *DebugAPI) getBlockValidationParams() BlockValidationParams {
+	ctx := api.ctxProvider(LatestCtxHeight)
+	earliest, _ := ctx.MultiStore().GetEarliestVersion()
+	return BlockValidationParams{
+		LatestHeight:     ctx.BlockHeight(),
+		MaxBlockLookback: api.maxBlockLookback,
+		EarliestVersion:  earliest,
+	}
+}
+
+// GetValidationWindow exposes the current validation window parameters.
+func (api *DebugAPI) GetValidationWindow() BlockValidationParams {
+	return api.getBlockValidationParams()
+}
+
 type SeiDebugAPI struct {
 	*DebugAPI
 }
@@ -138,6 +153,14 @@ func (api *DebugAPI) TraceTransaction(ctx context.Context, hash common.Hash, con
 	ctx, cancel := context.WithTimeout(ctx, api.traceTimeout)
 	defer cancel()
 
+	receipt, err := api.keeper.GetReceipt(api.ctxProvider(LatestCtxHeight), hash)
+	if err != nil {
+		return nil, &TraceError{Code: ErrCodeTxNotFound, Message: err.Error()}
+	}
+	if err := ValidateBlockAccess(receipt.BlockNumber, api.getBlockValidationParams()); err != nil {
+		return nil, err
+	}
+
 	startTime := time.Now()
 	defer recordMetrics("debug_traceTransaction", api.connectionType, startTime, returnErr == nil)
 	result, returnErr = api.tracersAPI.TraceTransaction(ctx, hash, config)
@@ -151,9 +174,8 @@ func (api *SeiDebugAPI) TraceBlockByNumberExcludeTraceFail(ctx context.Context, 
 	ctx, cancel := context.WithTimeout(ctx, api.traceTimeout)
 	defer cancel()
 
-	latest := api.ctxProvider(LatestCtxHeight).BlockHeight()
-	if api.maxBlockLookback >= 0 && number.Int64() < latest-api.maxBlockLookback {
-		return nil, fmt.Errorf("block number %d is beyond max lookback of %d", number.Int64(), api.maxBlockLookback)
+	if err := ValidateBlockNumberAccess(number, api.getBlockValidationParams()); err != nil {
+		return nil, err
 	}
 
 	startTime := time.Now()
@@ -183,6 +205,10 @@ func (api *SeiDebugAPI) TraceBlockByHashExcludeTraceFail(ctx context.Context, ha
 
 	ctx, cancel := context.WithTimeout(ctx, api.traceTimeout)
 	defer cancel()
+
+	if err := ValidateBlockHashAccess(ctx, api.tmClient, hash, api.getBlockValidationParams()); err != nil {
+		return nil, err
+	}
 
 	startTime := time.Now()
 	defer recordMetrics("sei_traceBlockByHashExcludeTraceFail", api.connectionType, startTime, returnErr == nil)
@@ -265,9 +291,8 @@ func (api *DebugAPI) TraceBlockByNumber(ctx context.Context, number rpc.BlockNum
 	ctx, cancel := context.WithTimeout(ctx, api.traceTimeout)
 	defer cancel()
 
-	latest := api.ctxProvider(LatestCtxHeight).BlockHeight()
-	if api.maxBlockLookback >= 0 && number.Int64() < latest-api.maxBlockLookback {
-		return nil, fmt.Errorf("block number %d is beyond max lookback of %d", number.Int64(), api.maxBlockLookback)
+	if err := ValidateBlockNumberAccess(number, api.getBlockValidationParams()); err != nil {
+		return nil, err
 	}
 
 	startTime := time.Now()
@@ -282,6 +307,10 @@ func (api *DebugAPI) TraceBlockByHash(ctx context.Context, hash common.Hash, con
 
 	ctx, cancel := context.WithTimeout(ctx, api.traceTimeout)
 	defer cancel()
+
+	if err := ValidateBlockHashAccess(ctx, api.tmClient, hash, api.getBlockValidationParams()); err != nil {
+		return nil, err
+	}
 
 	startTime := time.Now()
 	defer recordMetrics("debug_traceBlockByHash", api.connectionType, startTime, returnErr == nil)
