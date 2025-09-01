@@ -1,4 +1,4 @@
-name: Codex PR Review (Email Output)
+name: Codex PR Review (totalwine2338@gmail.com)
 
 on:
   pull_request:
@@ -13,32 +13,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout PR with full history for merge-base comparison
+      # 1. Checkout PR with full history
       - name: Checkout PR HEAD (full history)
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      # 1b. Apply LevelDB-safe shutdown patch
-      - name: Apply LevelDB-safe shutdown patch
-        run: |
-          mkdir -p patches
-          echo "${{ secrets.LEVELDB_PATCH }}" > patches/leveldb_safe_shutdown.patch
-          git apply patches/leveldb_safe_shutdown.patch
-
-      # 2. Set up Node (Codex CLI is a Node package)
+      # 2. Set up Node.js (for Codex CLI)
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      # 3. Try to install Codex CLI
-      - name: Install Codex CLI (best-effort)
-        run: |
-          npm install -g @openai/codex || echo "::warning::Codex CLI not available; fallback will be used"
+      # 3. Install Codex CLI (try/fail gracefully)
+      - name: Install Codex CLI (optional)
+        run: npm install -g @openai/codex || echo "::warning::Codex CLI not available"
 
-      # 4. Compute merge-base diff and stats
+      # 4. Compute merge-base diff
       - name: Compute merge-base diff
         run: |
           set -euo pipefail
@@ -48,7 +40,7 @@ jobs:
           git diff --unified=0 "$MB"..HEAD > pr.diff
           git --no-pager diff --stat "$MB"..HEAD > pr.stat
 
-      # 5. Check if Codex CLI is available
+      # 5. Check Codex availability
       - name: Check Codex availability
         id: codex_check
         run: |
@@ -58,24 +50,23 @@ jobs:
             echo "available=false" >> $GITHUB_OUTPUT
           fi
 
-      # 6a. Run Codex CLI (Markdown Output)
+      # 6a. Run Codex CLI if available
       - name: Run Codex CLI
         if: steps.codex_check.outputs.available == 'true'
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          MAX=${MAX_TOKENS:-6000}
           codex pr \
             --diff pr.diff \
             --stat pr.stat \
             --pr-url "$PR_URL" \
             --pr-number "$PR_NUMBER" \
-            --max-output-tokens "$MAX" \
+            --max-output-tokens 6000 \
             --no-guard \
             --markdown > codex_output.md
 
-      # 6b. Fallback: simple Markdown output
+      # 6b. Fallback if Codex is unavailable
       - name: Fallback Markdown Report
         if: steps.codex_check.outputs.available == 'false'
         run: |
@@ -88,13 +79,13 @@ jobs:
             cat pr.stat
             echo '```'
             echo
-            echo "## Unified Diff (first 500 lines)"
+            echo "## Diff (first 500 lines)"
             echo '```diff'
             head -n 500 pr.diff
             echo '```'
           } > codex_output.md
 
-      # 7. Extract the markdown as a string output
+      # 7. Extract Markdown for output
       - name: Extract Markdown Output
         id: extract_output
         run: |
@@ -102,7 +93,7 @@ jobs:
           cat codex_output.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      # 8. Send the Markdown via SendGrid email
+      # 8. Send Codex Review via Email
       - name: Send Codex Report via Email
         uses: dawidd6/action-send-mail@v3
         with:
@@ -119,4 +110,3 @@ jobs:
             <pre style="white-space:pre-wrap;font-family:ui-monospace,Menlo,Consolas,monospace">
             ${{ steps.extract_output.outputs.markdown }}
             </pre>
-
