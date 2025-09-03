@@ -50,6 +50,7 @@ func initializeApp(
 ) (*app.App, *abci.ResponseFinalizeBlock) {
 	a := app.Setup(false, true, chainID == "pacific-1")
 	a.ChainID = chainID
+	a.EvmKeeper.SetShouldFlushReceiptToConstantHeight(true)
 	res, err := a.FinalizeBlock(context.Background(), &abci.RequestFinalizeBlock{
 		Txs:    [][]byte{},
 		Hash:   mockHash(1, 0),

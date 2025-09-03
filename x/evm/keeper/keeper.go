@@ -82,7 +82,8 @@ type Keeper struct {
 	Root        common.Hash
 	ReplayBlock *ethtypes.Block
 
-	receiptStore seidbtypes.StateStore
+	receiptStore                       seidbtypes.StateStore
+	shouldFlushReceiptToConstantHeight bool
 
 	customPrecompiles       map[common.Address]precompiles.VersionedPrecompiles
 	latestCustomPrecompiles map[common.Address]vm.PrecompiledContract

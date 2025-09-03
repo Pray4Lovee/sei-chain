@@ -137,12 +137,20 @@ func (k *Keeper) flushTransientReceipts(ctx sdk.Context, sync bool) error {
 		Name:      types.ReceiptStoreKey,
 		Changeset: iavl.ChangeSet{Pairs: pairs},
 	}
+	flushHeight := ctx.BlockHeight()
+	if k.shouldFlushReceiptToConstantHeight {
+		// TEST ONLY
+		// this is a hack to get around the bug with receipt store
+		// in unit tests where flushing with incrementing height
+		// would cause receipts flushed from previous heights to be unreachable.
+		flushHeight = 1
+	}
 	if sync {
-		return k.receiptStore.ApplyChangeset(ctx.BlockHeight(), ncs)
+		return k.receiptStore.ApplyChangeset(flushHeight, ncs)
 	} else {
 		var changesets []*proto.NamedChangeSet
 		changesets = append(changesets, ncs)
-		return k.receiptStore.ApplyChangesetAsync(ctx.BlockHeight(), changesets)
+		return k.receiptStore.ApplyChangesetAsync(flushHeight, changesets)
 	}
 }
 
@@ -197,4 +205,8 @@ func (k *Keeper) WriteReceipt(
 	receipt.From = msg.From.Hex()
 
 	return receipt, k.SetTransientReceipt(ctx, txHash, receipt)
+}
+
+func (k *Keeper) SetShouldFlushReceiptToConstantHeight(shouldFlush bool) {
+	k.shouldFlushReceiptToConstantHeight = shouldFlush
 }
