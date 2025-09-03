@@ -62,7 +62,6 @@ jobs:
               owed.trim(),
               '```'
             ].join('\n');
-
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
