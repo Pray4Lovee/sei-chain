@@ -30,7 +30,7 @@ jobs:
             const found = requiredLabels.some(label => labels.includes(label));
 
             if (!found) {
-              core.setFailed("❌ PR must include at least one classification label.\nAvailable labels: " + requiredLabels.join(", "));
+              core.setFailed("❌ PR must include at least one classification label.\nRequired labels: " + requiredLabels.join(", "));
             } else {
-              console.log("✅ Valid label found.");
+              console.log("✅ Valid label found:", labels.find(l => requiredLabels.includes(l)));
             }

@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   x402:
-    name: x402
+    name: x402             # <-- required name for ruleset enforcement
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,6 +32,7 @@ jobs:
             echo "❌ ERROR: x402.sh not found at repo root." >&2
             exit 1
           fi
+
           if [ -f ./x402/receipts.json ]; then
             bash ./x402.sh ./x402/receipts.json > owed.txt
             echo "found=true" >> "$GITHUB_OUTPUT"
@@ -70,7 +71,7 @@ jobs:
             });
 
   x402_settlement:
-    name: x402 settlement
+    name: x402 settlement   # <-- optional ruleset-required job
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

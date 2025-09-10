@@ -12,7 +12,7 @@ on:
 
 permissions:
   contents: read
-  # Optional: Uncomment to allow inline lint results on PRs
+  # Optional: Uncomment to enable inline lint annotations on PRs
   # pull-requests: read
 
 jobs:
