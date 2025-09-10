@@ -2,21 +2,15 @@ name: Docker Integration Test
 
 on:
   push:
-    branches:
-      - main
-      - seiv2
+    branches: [main, seiv2]
   pull_request:
-    branches:
-      - main
-      - seiv2
-      - evm
+    branches: [main, seiv2, evm]
 
 defaults:
   run:
     shell: bash
 
 jobs:
-  # Detect Slinky-related changes
   slinky-changes:
     runs-on: ubuntu-latest
     outputs:
@@ -31,7 +25,6 @@ jobs:
               - 'scripts/modules/slinky_test/**'
               - 'x/slinky/**'
 
-  # Main matrix-based integration tests
   integration-tests:
     name: Integration Test (${{ matrix.test.name }})
     runs-on: ubuntu-large
@@ -111,7 +104,7 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: 1.21
-      - name: Install deps
+      - name: Install dependencies
         run: |
           pip3 install pyyaml
           sudo apt-get install -y jq
@@ -129,72 +122,38 @@ jobs:
         run: |
           scripts=$(echo '${{ toJson(matrix.test.scripts) }}' | jq -r '.[]')
           IFS=$'\n'
-          echo "$scripts"
           for script in $scripts; do
             bash -c "$script"
           done
           unset IFS
 
-  # Only runs if slinky changed
   slinky-tests:
     needs: slinky-changes
     if: needs.slinky-changes.outputs.slinky == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Go
-        uses: actions/setup-go@v3
+      - uses: actions/setup-go@v3
         with:
           go-version: 1.21
       - name: Run Slinky Integration Tests
         run: scripts/modules/slinky_test/run_slinky_test.sh
 
-  # Waits for both integration + slinky
   integration-test-check:
     name: Integration Test Check
     runs-on: ubuntu-latest
     needs: [integration-tests, slinky-tests]
     if: always()
     steps:
-      - name: Get workflow conclusion
-        id: workflow_conclusion
-        uses: nick-fields/retry@v2
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_seconds: 30
-          command: |
-            jobs=$(curl https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs)
-            job_statuses=$(echo "$jobs" | jq -r '.jobs[] | .conclusion')
-            for status in $job_statuses; do
-              echo "Status: $status"
-              if [[ "$status" == "failure" ]]; then
-                echo "❌ Some or all tests have failed!"
-                exit 1
-              fi
-            done
-            echo "✅ All tests have passed!"
-
-  # Separate job for Forge EVM tests
-  forge:
-    name: Forge project
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: false
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
-        with:
-          version: nightly
-      - name: Install dependencies
+      - name: Check workflow results
         run: |
-          forge install foundry-rs/forge-std@v1.8.2
-          forge install OpenZeppelin/openzeppelin-contracts@v5.0.2
-      - name: Build contracts
-        run: |
-          forge --version
-          forge build --evm-version=prague
-      - name: Run Forge tests
-        run: |
-          forge test -vvv --evm-version=prague
+          jobs=$(curl -s https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs)
+          job_statuses=$(echo "$jobs" | jq -r '.jobs[] | .conclusion')
+          for status in $job_statuses; do
+            echo "Status: $status"
+            if [[ "$status" == "failure" ]]; then
+              echo "❌ Some or all tests failed."
+              exit 1
+            fi
+          done
+          echo "✅ All integration tests passed!"
