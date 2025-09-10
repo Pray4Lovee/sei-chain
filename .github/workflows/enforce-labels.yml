@@ -6,6 +6,7 @@ on:
 
 jobs:
   check-label:
+    name: Enforce Required PR Labels
     runs-on: ubuntu-latest
     steps:
       - name: 🚨 Validate PR labels
