@@ -80,7 +80,7 @@ func (t *TransactionAPI) GetTransactionReceipt(ctx context.Context, hash common.
 		big.NewInt(sdkCtx.BlockHeight()),
 		uint64(sdkCtx.BlockTime().Unix()),
 	)
-	return getTransactionReceipt(ctx, t, hash, false, nil, false, signer)
+	return getTransactionReceipt(ctx, t, hash, false, nil, t.includeSynthetic, signer)
 }
 
 func getTransactionReceipt(
@@ -93,7 +93,7 @@ func getTransactionReceipt(
 	signer ethtypes.Signer,
 ) (result map[string]interface{}, returnErr error) {
 	startTime := time.Now()
-	defer recordMetrics("eth_getTransactionReceipt", t.connectionType, startTime, returnErr == nil)
+	defer recordMetricsWithError("eth_getTransactionReceipt", t.connectionType, startTime, returnErr)
 	sdkctx := t.ctxProvider(LatestCtxHeight)
 
 	if excludePanicTxs {
@@ -159,7 +159,7 @@ func getTransactionReceipt(
 	if err != nil {
 		return nil, err
 	}
-	return encodeReceipt(receipt, t.txConfigProvider(height).TxDecoder(), block, func(h common.Hash) *types.Receipt {
+	return encodeReceipt(t.ctxProvider(height), receipt, t.txConfigProvider(height).TxDecoder(), block, func(h common.Hash) *types.Receipt {
 		r, err := t.keeper.GetReceipt(sdkctx, h)
 		if err != nil {
 			return nil
@@ -170,7 +170,7 @@ func getTransactionReceipt(
 
 func (t *TransactionAPI) GetVMError(hash common.Hash) (result string, returnErr error) {
 	startTime := time.Now()
-	defer recordMetrics("eth_getVMError", t.connectionType, startTime, true)
+	defer recordMetricsWithError("eth_getVMError", t.connectionType, startTime, returnErr)
 	receipt, err := t.keeper.GetReceipt(t.ctxProvider(LatestCtxHeight), hash)
 	if err != nil {
 		return "", err
@@ -178,9 +178,13 @@ func (t *TransactionAPI) GetVMError(hash common.Hash) (result string, returnErr 
 	return receipt.VmError, nil
 }
 
-func (t *TransactionAPI) GetTransactionByBlockNumberAndIndex(ctx context.Context, blockNr rpc.BlockNumber, index hexutil.Uint) (result *export.RPCTransaction, returnErr error) {
+func (t *TransactionAPI) GetTransactionByBlockNumberAndIndex(ctx context.Context, blockNr rpc.BlockNumber, txIndex hexutil.Uint) (result *export.RPCTransaction, returnErr error) {
 	startTime := time.Now()
-	defer recordMetrics("eth_getTransactionByBlockNumberAndIndex", t.connectionType, startTime, returnErr == nil)
+	defer recordMetricsWithError("eth_getTransactionByBlockNumberAndIndex", t.connectionType, startTime, returnErr)
+	return t.getTransactionByBlockNumberAndIndex(ctx, blockNr, NewTransactionIndexFromEVMIndex(uint32(txIndex)))
+}
+
+func (t *TransactionAPI) getTransactionByBlockNumberAndIndex(ctx context.Context, blockNr rpc.BlockNumber, txIndex *TransactionIndex) (result *export.RPCTransaction, returnErr error) {
 	blockNumber, err := getBlockNumber(ctx, t.tmClient, blockNr)
 	if err != nil {
 		return nil, err
@@ -189,22 +193,22 @@ func (t *TransactionAPI) GetTransactionByBlockNumberAndIndex(ctx context.Context
 	if err != nil {
 		return nil, err
 	}
-	return t.getTransactionWithBlock(block, index, t.includeSynthetic)
+	return t.getTransactionWithBlock(block, txIndex, t.includeSynthetic)
 }
 
-func (t *TransactionAPI) GetTransactionByBlockHashAndIndex(ctx context.Context, blockHash common.Hash, index hexutil.Uint) (result *export.RPCTransaction, returnErr error) {
+func (t *TransactionAPI) GetTransactionByBlockHashAndIndex(ctx context.Context, blockHash common.Hash, txIndex hexutil.Uint) (result *export.RPCTransaction, returnErr error) {
 	startTime := time.Now()
-	defer recordMetrics("eth_getTransactionByBlockHashAndIndex", t.connectionType, startTime, returnErr == nil)
+	defer recordMetricsWithError("eth_getTransactionByBlockHashAndIndex", t.connectionType, startTime, returnErr)
 	block, err := blockByHash(ctx, t.tmClient, blockHash[:])
 	if err != nil {
 		return nil, err
 	}
-	return t.getTransactionWithBlock(block, index, t.includeSynthetic)
+	return t.getTransactionWithBlock(block, NewTransactionIndexFromEVMIndex(uint32(txIndex)), t.includeSynthetic)
 }
 
 func (t *TransactionAPI) GetTransactionByHash(ctx context.Context, hash common.Hash) (result *export.RPCTransaction, returnErr error) {
 	startTime := time.Now()
-	defer recordMetrics("eth_getTransactionByHash", t.connectionType, startTime, returnErr == nil)
+	defer recordMetricsWithError("eth_getTransactionByHash", t.connectionType, startTime, returnErr)
 	sdkCtx := t.ctxProvider(LatestCtxHeight)
 	// first try get from mempool
 	for page := 1; page <= UnconfirmedTxQueryMaxPage; page++ {
@@ -249,15 +253,15 @@ func (t *TransactionAPI) GetTransactionByHash(ctx context.Context, hash common.H
 		}
 		return nil, err
 	}
-	if isReceiptFromAnteError(receipt) {
+	if isReceiptFromAnteError(t.ctxProvider(int64(receipt.BlockNumber)), receipt) {
 		return nil, errors.New("not found")
 	}
-	return t.GetTransactionByBlockNumberAndIndex(ctx, rpc.BlockNumber(receipt.BlockNumber), hexutil.Uint(receipt.TransactionIndex))
+	return t.getTransactionByBlockNumberAndIndex(ctx, rpc.BlockNumber(receipt.BlockNumber), NewTransactionIndexFromCosmosIndex(receipt.TransactionIndex))
 }
 
 func (t *TransactionAPI) GetTransactionErrorByHash(_ context.Context, hash common.Hash) (result string, returnErr error) {
 	startTime := time.Now()
-	defer recordMetrics("eth_getTransactionErrorByHash", t.connectionType, startTime, returnErr == nil)
+	defer recordMetricsWithError("eth_getTransactionErrorByHash", t.connectionType, startTime, returnErr)
 	receipt, err := t.keeper.GetReceipt(t.ctxProvider(LatestCtxHeight), hash)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
@@ -270,7 +274,7 @@ func (t *TransactionAPI) GetTransactionErrorByHash(_ context.Context, hash commo
 
 func (t *TransactionAPI) GetTransactionCount(ctx context.Context, address common.Address, blockNrOrHash rpc.BlockNumberOrHash) (result *hexutil.Uint64, returnErr error) {
 	startTime := time.Now()
-	defer recordMetrics("eth_getTransactionCount", t.connectionType, startTime, returnErr == nil)
+	defer recordMetricsWithError("eth_getTransactionCount", t.connectionType, startTime, returnErr)
 	sdkCtx := t.ctxProvider(LatestCtxHeight)
 
 	var pending bool
@@ -294,11 +298,24 @@ func (t *TransactionAPI) GetTransactionCount(ctx context.Context, address common
 	return (*hexutil.Uint64)(&nonce), nil
 }
 
-func (t *TransactionAPI) getTransactionWithBlock(block *coretypes.ResultBlock, index hexutil.Uint, includeSynthetic bool) (*export.RPCTransaction, error) {
-	if int(index) >= len(block.Block.Txs) {
+func (t *TransactionAPI) getTransactionWithBlock(block *coretypes.ResultBlock, txIndex *TransactionIndex, includeSynthetic bool) (*export.RPCTransaction, error) {
+	cosmosTxIndex, hasCosmosTxIndex := txIndex.CalculateCosmosTxIndex(block, t.txConfigProvider(block.Block.Height).TxDecoder(), func(h common.Hash) *types.Receipt {
+		r, err := t.keeper.GetReceipt(t.ctxProvider(LatestCtxHeight), h)
+		if err != nil {
+			return nil
+		}
+		return r
+	}, includeSynthetic)
+	if !hasCosmosTxIndex {
 		return nil, nil
 	}
-	txIdx, found, ethtx, _ := GetEvmTxIndex(block.Block.Txs, uint32(index), t.txConfigProvider(block.Block.Height).TxDecoder(), func(h common.Hash) *types.Receipt {
+
+	if int(cosmosTxIndex) >= len(block.Block.Txs) {
+		return nil, nil
+	}
+
+	ctx := t.ctxProvider(block.Block.Height)
+	txIdx, found, ethtx, _ := GetEvmTxIndex(ctx, block.Block.Txs, cosmosTxIndex, t.txConfigProvider(block.Block.Height).TxDecoder(), func(h common.Hash) *types.Receipt {
 		r, err := t.keeper.GetReceipt(t.ctxProvider(LatestCtxHeight), h)
 		if err != nil {
 			return nil
@@ -312,11 +329,16 @@ func (t *TransactionAPI) getTransactionWithBlock(block *coretypes.ResultBlock, i
 	if err != nil {
 		return nil, err
 	}
-	if isReceiptFromAnteError(receipt) {
+	if isReceiptFromAnteError(t.ctxProvider(block.Block.Height), receipt) {
 		return nil, errors.New("not found")
 	}
 	height := int64(receipt.BlockNumber)
-	baseFeePerGas := t.keeper.GetBaseFee(t.ctxProvider(height))
+	var baseFeePerGas *big.Int
+	if block.Block.Height > 1 {
+		baseFeePerGas = t.keeper.GetNextBaseFeePerGas(t.ctxProvider(height - 1)).TruncateInt().BigInt()
+	} else {
+		baseFeePerGas = types.DefaultMinFeePerGas.TruncateInt().BigInt()
+	}
 	chainConfig := types.DefaultChainConfig().EthereumConfig(t.keeper.ChainID(t.ctxProvider(height)))
 	blockHash := common.HexToHash(block.BlockID.Hash.String())
 	blockNumber := uint64(block.Block.Height)
@@ -327,7 +349,7 @@ func (t *TransactionAPI) getTransactionWithBlock(block *coretypes.ResultBlock, i
 
 func (t *TransactionAPI) Sign(addr common.Address, data hexutil.Bytes) (result hexutil.Bytes, returnErr error) {
 	startTime := time.Now()
-	defer recordMetrics("eth_sign", t.connectionType, startTime, returnErr == nil)
+	defer recordMetricsWithError("eth_sign", t.connectionType, startTime, returnErr)
 	kb, err := getTestKeyring(t.homeDir)
 	if err != nil {
 		return nil, err
@@ -361,7 +383,7 @@ func getEthTxForTxBz(tx tmtypes.Tx, decoder sdk.TxDecoder) *ethtypes.Transaction
 
 // Gets the EVM tx index based on the tx index (typically from receipt.TransactionIndex
 // Essentially loops through and calculates the index if we ignore cosmos txs
-func GetEvmTxIndex(txs tmtypes.Txs, txIndex uint32, decoder sdk.TxDecoder, receiptChecker func(common.Hash) *types.Receipt, includeSynthetic bool) (index int, found bool, etx *ethtypes.Transaction, logIndexOffset int) {
+func GetEvmTxIndex(ctx sdk.Context, txs tmtypes.Txs, txIndex uint32, decoder sdk.TxDecoder, receiptChecker func(common.Hash) *types.Receipt, includeSynthetic bool) (index int, found bool, etx *ethtypes.Transaction, logIndexOffset int) {
 	var evmTxIndex, logIndex int
 	for i, tx := range txs {
 		etx = getEthTxForTxBz(tx, decoder)
@@ -373,41 +395,34 @@ func GetEvmTxIndex(txs tmtypes.Txs, txIndex uint32, decoder sdk.TxDecoder, recei
 			receipt = receiptChecker(sha256.Sum256(tx))
 		}
 		hasReceipt := receipt != nil
-		if includeSynthetic {
-			if isEVMTx {
-				// must have receipt
-				if i == int(txIndex) {
-					return evmTxIndex, true, etx, logIndex
-				}
-				evmTxIndex++
-				if hasReceipt {
-					logIndex += len(receipt.Logs)
-				}
-			} else {
-				if hasReceipt {
-					if i == int(txIndex) {
-						return evmTxIndex, true, etx, logIndex
-					}
-					evmTxIndex++
-					logIndex += len(receipt.Logs)
-				}
+
+		isSynthetic := hasReceipt && !isEVMTx
+
+		if !isEVMTx && !isSynthetic {
+			continue
+		}
+		if hasReceipt {
+			if isReceiptFromAnteError(ctx, receipt) {
+				continue
 			}
-		} else {
-			if isEVMTx {
-				// must have receipt
-				if i == int(txIndex) {
-					return evmTxIndex, true, etx, logIndex
-				}
-				evmTxIndex++
-				if hasReceipt {
-					logIndex += len(receipt.Logs)
-				}
-			} else {
-				// would still find the tx, but not count it towards index
-				if hasReceipt {
-					if i == int(txIndex) {
-						return evmTxIndex, true, etx, logIndex
-					}
+			if receipt.BlockNumber != uint64(ctx.BlockHeight()) {
+				continue
+			}
+		}
+
+		if i == int(txIndex) {
+			return evmTxIndex, true, etx, logIndex
+		}
+
+		if isSynthetic && !includeSynthetic {
+			continue
+		}
+
+		evmTxIndex++
+		if hasReceipt {
+			for _, log := range receipt.Logs {
+				if includeSynthetic || !log.Synthetic {
+					logIndex++
 				}
 			}
 		}
@@ -415,16 +430,21 @@ func GetEvmTxIndex(txs tmtypes.Txs, txIndex uint32, decoder sdk.TxDecoder, recei
 	return -1, false, nil, -1
 }
 
-func encodeReceipt(receipt *types.Receipt, decoder sdk.TxDecoder, block *coretypes.ResultBlock, receiptChecker func(common.Hash) *types.Receipt, includeSynthetic bool, signer ethtypes.Signer) (map[string]interface{}, error) {
+func encodeReceipt(ctx sdk.Context, receipt *types.Receipt, decoder sdk.TxDecoder, block *coretypes.ResultBlock, receiptChecker func(common.Hash) *types.Receipt, includeSynthetic bool, signer ethtypes.Signer) (map[string]interface{}, error) {
 	blockHash := block.BlockID.Hash
 	bh := common.HexToHash(blockHash.String())
-	evmTxIndex, foundTx, etx, logIndexOffset := GetEvmTxIndex(block.Block.Txs, receipt.TransactionIndex, decoder, receiptChecker, includeSynthetic)
+	evmTxIndex, foundTx, etx, logIndexOffset := GetEvmTxIndex(ctx, block.Block.Txs, receipt.TransactionIndex, decoder, receiptChecker, includeSynthetic)
 	// convert tx index including cosmos txs to tx index excluding cosmos txs
 	if !foundTx {
 		return nil, errors.New("failed to find transaction in block")
 	}
 	receipt.TransactionIndex = uint32(evmTxIndex)
-	logs := keeper.GetLogsForTx(receipt, uint(logIndexOffset))
+	var logs []*ethtypes.Log
+	if includeSynthetic {
+		logs = keeper.GetLogsForTx(receipt, uint(logIndexOffset))
+	} else {
+		logs = keeper.GetEvmOnlyLogsForTx(receipt, uint(logIndexOffset))
+	}
 	for _, log := range logs {
 		log.BlockHash = bh
 	}
@@ -463,4 +483,68 @@ func encodeReceipt(receipt *types.Receipt, decoder sdk.TxDecoder, block *coretyp
 		fields["to"] = common.HexToAddress(receipt.To)
 	}
 	return fields, nil
+}
+
+type TransactionIndex struct {
+	evmTxIndex       uint32
+	hasEVMTxIndex    bool
+	cosmosTxIndex    uint32
+	hasCosmosTxIndex bool
+}
+
+func NewTransactionIndexFromEVMIndex(evmTxIndex uint32) *TransactionIndex {
+	return &TransactionIndex{
+		evmTxIndex:       evmTxIndex,
+		hasEVMTxIndex:    true,
+		cosmosTxIndex:    0,
+		hasCosmosTxIndex: false,
+	}
+}
+
+func NewTransactionIndexFromCosmosIndex(cosmosTxIndex uint32) *TransactionIndex {
+	return &TransactionIndex{
+		evmTxIndex:       0,
+		hasEVMTxIndex:    false,
+		cosmosTxIndex:    cosmosTxIndex,
+		hasCosmosTxIndex: true,
+	}
+}
+
+func (ti *TransactionIndex) CalculateCosmosTxIndex(block *coretypes.ResultBlock, decoder sdk.TxDecoder, receiptChecker func(common.Hash) *types.Receipt, includeSynthetic bool) (uint32, bool) {
+	if ti.hasCosmosTxIndex {
+		return ti.cosmosTxIndex, ti.hasCosmosTxIndex
+	}
+
+	var evmTxIndex int
+	for i, tx := range block.Block.Txs {
+		etx := getEthTxForTxBz(tx, decoder)
+		isEVMTx := etx != nil
+		var receipt *types.Receipt
+		if isEVMTx {
+			receipt = receiptChecker(etx.Hash())
+		} else {
+			receipt = receiptChecker(sha256.Sum256(tx))
+		}
+		hasReceipt := receipt != nil
+
+		isSynthetic := !isEVMTx && hasReceipt
+
+		if !isEVMTx && !isSynthetic {
+			continue
+		}
+
+		if evmTxIndex == int(ti.evmTxIndex) {
+			ti.cosmosTxIndex = uint32(i)
+			ti.hasCosmosTxIndex = true
+			break
+		}
+
+		if isSynthetic && !includeSynthetic {
+			continue
+		}
+
+		evmTxIndex++
+	}
+
+	return ti.cosmosTxIndex, ti.hasCosmosTxIndex
 }
