@@ -35,5 +35,5 @@ and allows LumenCard payments to be tracked alongside other x402 transactions.
 
 ## License
 
-The contents of this directory are proprietary to Sei Labs. Unauthorized copying,
-redistribution, or modification is prohibited. See [LICENSE](LICENSE) for details.
+This directory is licensed under the [MIT License](LICENSE). You're free to use,
+modify, and distribute these utilities subject to the terms of that license.
