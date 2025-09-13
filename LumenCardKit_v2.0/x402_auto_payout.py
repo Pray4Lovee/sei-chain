@@ -1,7 +1,15 @@
+"""Helper script to record x402 payout receipts.
+
+Each invocation prepares a memo for an outbound payout and stores a
+receipt in ``receipts.json`` including the wallet address, memo,
+timestamp and optional chain identifier. Downstream tooling can bucket
+the receipts per chain for reporting or execution.
+"""
+
 import argparse
 import json
 import os
-import time
+from datetime import datetime, timezone
 
 
 def main():
@@ -14,14 +22,17 @@ def main():
     args = parser.parse_args()
 
     wallet_path = os.path.expanduser("~/.lumen_wallet.txt")
-    with open(wallet_path, "r") as f:
+    if not os.path.exists(wallet_path):
+        raise FileNotFoundError(f"wallet file not found at {wallet_path}")
+    with open(wallet_path, "r", encoding="utf-8") as f:
         addr = f.read().strip()
 
-    memo = f"x402::payout::{addr}::{int(time.time())}"
+    now = datetime.now(timezone.utc)
+    memo = f"x402::payout::{addr}::{int(now.timestamp())}"
     receipt = {
         "wallet": addr,
         "memo": memo,
-        "timestamp": time.ctime(),
+        "timestamp": now.isoformat().replace("+00:00", "Z"),
         "chain": args.chain,
     }
 
