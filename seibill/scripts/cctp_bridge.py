@@ -1,8 +1,8 @@
-# Copyright 2024 The Sei Authors
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+UNLICENSED
+
+All rights reserved. This software and its source code may not be copied, modified,
+distributed, or used without prior written permission from the authors.
+
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
