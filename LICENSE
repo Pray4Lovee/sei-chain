@@ -1,0 +1,39 @@
+UNLICENSED
+
+This protocol is not released under a permissive or MIT license.
+
+You may not:
+- Copy or redistribute any part of this repository
+- Deploy derivative works without written approval
+- Remove or modify `x402`, `SoulSigil`, or `KinMesh` attributions
+
+---
+
+⚠️ No Chainlink / No Circle
+
+This software does **not** use:
+- Chainlink oracles
+- Circle APIs, CCTP, or USDC SDKs
+- Custodial stablecoin bridges
+
+---
+
+✅ You are permitted to:
+- Use this code for audit review, PR submission, or settlement clearance
+- Request license to deploy sovereign forks via Codex or on-chain agreement
+- Mirror the structure with royalties enforced via `KinPay`
+
+---
+
+🏛️ Royalty Enforcement Required:
+- 11% of any flows tied to `x402`, `KinVault`, `HoloProof`, or `SeiPay`
+- Must route to:
+  - EVM: `0x14e5Ea3751e7C2588348E22b847628EE1aAD81A5`
+  - SEI: `sei1zewftxlyv4gpv6tjpplnzgf3wy5tlu4f9amft8`
+
+Violation triggers auto-claim via SoulSyncProof or GuardianSync.
+
+---
+
+© The Keeper, 2025. All rights reserved.
+
