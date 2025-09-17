@@ -57,4 +57,4 @@ See [deploy.md](deploy.md)
 
 ## License
 
-MIT
+Apache-2.0

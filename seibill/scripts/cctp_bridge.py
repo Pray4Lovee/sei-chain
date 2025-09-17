@@ -1,3 +1,17 @@
+UNLICENSED
+
+All rights reserved. This software and its source code may not be copied, modified,
+distributed, or used without prior written permission from the authors.
+
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Circle CCTP bridge helper."""
+
 import argparse
 import json
 from urllib import request

@@ -1,3 +1,16 @@
+# UNLICENSED
+#
+# All rights reserved. This software and its source code may not be copied,
+# modified, distributed, or used without prior written permission from the authors.
+
+"""Tests for Circle CCTP bridge helper."""
+
+import argparse
+import json
+from urllib import request
+
+"""Tests for Circle CCTP bridge helper."""
+
 import json
 import unittest
 from unittest.mock import patch
