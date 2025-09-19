@@ -1,0 +1,17 @@
+type: object
+properties:
+  wallet_name: { type: string }
+  chain_id: { type: string }
+  rpc_node: { type: string }
+  fee: { type: string }
+  gas: { type: string }
+  buffer: { type: integer }
+  validators:
+    type: array
+    items: { type: string }
+  alerts:
+    type: object
+    properties:
+      telegram_token: { type: string }
+      chat_id: { type: string }
+      enabled: { type: boolean }
