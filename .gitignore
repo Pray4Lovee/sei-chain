@@ -60,3 +60,6 @@ integration_test/dapp_tests/artifacts
 
 # Compressed archives and release bundles
 *.zip
+
+# reward sdk build artifacts
+sdk/dist/
