@@ -302,8 +302,15 @@ func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 				panic(err)
 			}
 			statedb := state.NewDBImpl(ctx, am.keeper, false)
-			vmenv := vm.NewEVM(*blockCtx, statedb, types.DefaultChainConfig().EthereumConfig(am.keeper.ChainID(ctx)), vm.Config{}, am.keeper.CustomPrecompiles(ctx))
-			core.ProcessBeaconBlockRoot(*beaconRoot, vmenv)
+			vmenv := vm.NewEVM(
+				*blockCtx,
+				vm.TxContext{},
+				statedb,
+				types.DefaultChainConfig().EthereumConfig(am.keeper.ChainID(ctx)),
+				vm.Config{},
+				am.keeper.CustomPrecompiles(ctx),
+			)
+			core.ProcessBeaconBlockRoot(*beaconRoot, vmenv, statedb)
 			_, err = statedb.Finalize()
 			if err != nil {
 				panic(err)
@@ -317,8 +324,15 @@ func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 			panic(err)
 		}
 		statedb := state.NewDBImpl(ctx, am.keeper, false)
-		vmenv := vm.NewEVM(*blockCtx, statedb, types.DefaultChainConfig().EthereumConfig(am.keeper.ChainID(ctx)), vm.Config{}, am.keeper.CustomPrecompiles(ctx))
-		core.ProcessParentBlockHash(parentHash, vmenv)
+		vmenv := vm.NewEVM(
+			*blockCtx,
+			vm.TxContext{},
+			statedb,
+			types.DefaultChainConfig().EthereumConfig(am.keeper.ChainID(ctx)),
+			vm.Config{},
+			am.keeper.CustomPrecompiles(ctx),
+		)
+		core.ProcessParentBlockHash(parentHash, vmenv, statedb)
 		_, err = statedb.Finalize()
 		if err != nil {
 			panic(err)
@@ -417,8 +431,8 @@ func (am AppModule) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) []abci.V
 			continue
 		}
 		// Re-create a per-tx bloom from EVM-only logs (exclude synthetic)
-		evmOnlyBloom := ethtypes.CreateBloom(&ethtypes.Receipt{
-			Logs: keeper.GetEvmOnlyLogsForTx(r, 0),
+		evmOnlyBloom := ethtypes.CreateBloom(ethtypes.Receipts{
+			&ethtypes.Receipt{Logs: keeper.GetEvmOnlyLogsForTx(r, 0)},
 		})
 		evmOnlyBlooms = append(evmOnlyBlooms, evmOnlyBloom)
 	}
