@@ -390,12 +390,12 @@ func (am AppModule) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) []abci.V
 		surplusUsei, surplusWei := state.SplitUseiWeiAmount(surplus.BigInt())
 		if surplusUsei.GT(sdk.ZeroInt()) {
 			if err := am.keeper.BankKeeper().AddCoins(ctx, am.keeper.AccountKeeper().GetModuleAddress(types.ModuleName), sdk.NewCoins(sdk.NewCoin(am.keeper.GetBaseDenom(ctx), surplusUsei)), true); err != nil {
-				ctx.Logger().Error("failed to send usei surplus of %s to EVM module account", surplusUsei)
+				ctx.Logger().Error(fmt.Sprintf("failed to send usei surplus of %s to EVM module account", surplusUsei))
 			}
 		}
 		if surplusWei.GT(sdk.ZeroInt()) {
 			if err := am.keeper.BankKeeper().AddWei(ctx, am.keeper.AccountKeeper().GetModuleAddress(types.ModuleName), surplusWei); err != nil {
-				ctx.Logger().Error("failed to send wei surplus of %s to EVM module account", surplusWei)
+				ctx.Logger().Error(fmt.Sprintf("failed to send wei surplus of %s to EVM module account", surplusWei))
 			}
 		}
 	}
