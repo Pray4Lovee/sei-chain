@@ -122,6 +122,10 @@ curl -X POST "https://sei-rpc.example/txs" \
 Replace `sei-rpc.example` and the broadcast mode according to your
 infrastructure needs.
 
+> Prefer a single step that signs _and_ broadcasts from Node.js? Check out
+> [`deploy/msg_claim.ts`](./deploy_msg_claim.md) for a TypeScript helper that
+> handles fee estimation, optional waiting for receipts, and JSON summaries.
+
 ## Troubleshooting tips
 
 - `ValueError: Payload hex must have an even number of characters` – double
