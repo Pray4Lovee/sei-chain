@@ -1,4 +1,4 @@
-name: EVM Mainnet USDC Tx — Paymaster Flow
+name: EVM Mainnet USDC Paymaster
 
 on:
   workflow_dispatch:
@@ -41,11 +41,10 @@ on:
       rpc_provider:
         description: "RPC provider to broadcast the transaction"
         required: true
-        default: hyperliquid
+        default: sei
         type: choice
         options:
-          - hyperliquid
-          - alchemy
+          - sei
           - custom
       rpc_url:
         description: "Optional RPC override (required when rpc_provider = custom)"
@@ -65,9 +64,8 @@ on:
         default: "1.5"
 
 env:
-  HYPERLIQUID_RPC_URL: ${{ secrets.HYPERLIQUID_RPC_URL }}
-  ALCHEMY_URL: https://eth-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
-  PRIVATE_KEY: ${{ secrets.KEEPER_PRIVATE_KEY }}
+  SEI_RPC_URL: ${{ secrets.SEI_RPC_URL }}
+  SEI_PRIVATE_KEY: ${{ secrets.SEI_PRIVATE_KEY }}
 
 jobs:
   broadcast-usdc:
@@ -300,240 +298,5 @@ PY
           echo "VALID_BEFORE_ISO=$(format_timestamp_iso "$VALID_BEFORE")" >> "$GITHUB_ENV"
           echo "AMOUNT_FORMAT=$amount_format" >> "$GITHUB_ENV"
           echo "SIMULATION_STATUS=Not started" >> "$GITHUB_ENV"
-
-      - name: Validate keeper key matches from address
-        shell: bash
-        env:
-          PRIVATE_KEY: ${{ env.PRIVATE_KEY }}
-        run: |
-          set -euo pipefail
-
-          if [[ -z "${FROM_ADDRESS:-}" ]]; then
-            echo "FROM_ADDRESS is not available" >&2
-            exit 1
-          fi
-
-          signer_raw="$(cast wallet address --private-key "$PRIVATE_KEY" | tr -d '\r\n')"
-          signer_checksum="$(cast to-checksum-address "$signer_raw")"
-
-          if [[ "${signer_checksum,,}" != "${FROM_ADDRESS,,}" ]]; then
-            echo "Configured keeper key does not match from_address" >&2
-            echo "Derived signer: $signer_checksum" >&2
-            echo "Expected: $FROM_ADDRESS" >&2
-            exit 1
-          fi
-
-          echo "SIGNER_ADDRESS=$signer_checksum" >> "$GITHUB_ENV"
-
-      - name: Select RPC endpoint
-        shell: bash
-        run: |
-          set -euo pipefail
-          provider="${{ github.event.inputs.rpc_provider }}"
-          override_url="${{ github.event.inputs.rpc_url }}"
-
-          if [[ "$provider" == "custom" ]]; then
-            if [[ -z "${override_url//[[:space:]]/}" ]]; then
-              echo "rpc_url must be provided when rpc_provider is custom" >&2
-              exit 1
-            fi
-            rpc_url="$override_url"
-            provider_label="Custom"
-          elif [[ "$provider" == "hyperliquid" ]]; then
-            if [[ -z "${HYPERLIQUID_RPC_URL:-}" ]]; then
-              echo "HYPERLIQUID_RPC_URL secret is not configured" >&2
-              exit 1
-            fi
-            rpc_url="$HYPERLIQUID_RPC_URL"
-            provider_label="Hyperliquid"
-          elif [[ "$provider" == "alchemy" ]]; then
-            if [[ -z "${ALCHEMY_URL:-}" ]]; then
-              echo "ALCHEMY_API_KEY secret is not configured" >&2
-              exit 1
-            fi
-            rpc_url="$ALCHEMY_URL"
-            provider_label="Alchemy"
-          else
-            echo "Unsupported rpc_provider: $provider" >&2
-            exit 1
-          fi
-
-          echo "Using $provider_label RPC endpoint"
-          echo "ETH_RPC_URL=$rpc_url" >> "$GITHUB_ENV"
-          echo "RPC_PROVIDER_LABEL=$provider_label" >> "$GITHUB_ENV"
-
-      - name: Preflight on-chain checks
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if [[ -z "${ETH_RPC_URL:-}" ]]; then
-            echo "ETH_RPC_URL was not set" >&2
-            exit 1
-          fi
-
-          usdc_contract=0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392
-
-          chain_id_hex="$(cast rpc eth_chainId --rpc-url "$ETH_RPC_URL" | tr -d '\r\n')"
-          if [[ -z "${chain_id_hex//[[:space:]]/}" ]]; then
-            echo "RPC endpoint did not return a chain id" >&2
-            exit 1
-          fi
-          chain_id_value=$((16#${chain_id_hex#0x}))
-          if (( chain_id_value != 1 )); then
-            echo "RPC endpoint is not reporting Ethereum mainnet (chain id ${chain_id_hex})" >&2
-            exit 1
-          fi
-          echo "CHAIN_ID_HEX=$chain_id_hex" >> "$GITHUB_ENV"
-          echo "CHAIN_ID_VALUE=$chain_id_value" >> "$GITHUB_ENV"
-
-          block_json="$(cast rpc eth_getBlockByNumber latest false --rpc-url "$ETH_RPC_URL")"
-          block_timestamp_hex="$(jq -r '.result.timestamp' <<<"$block_json")"
-          if [[ -z "$block_timestamp_hex" || "$block_timestamp_hex" == "null" ]]; then
-            echo "Unable to fetch latest block timestamp" >&2
-            exit 1
-          fi
-          chain_timestamp=$((16#${block_timestamp_hex#0x}))
-          echo "CHAIN_TIMESTAMP=$chain_timestamp" >> "$GITHUB_ENV"
-          echo "CHAIN_TIMESTAMP_ISO=$(date -u -d "@$chain_timestamp" '+%Y-%m-%d %H:%M:%S UTC')" >> "$GITHUB_ENV"
-
-          if (( chain_timestamp >= 10#$VALID_BEFORE )); then
-            echo "Authorization already expired on-chain (block timestamp >= valid_before)" >&2
-            exit 1
-          fi
-
-          if (( 10#$VALID_AFTER > 0 && chain_timestamp < 10#$VALID_AFTER )); then
-            echo "Authorization not yet valid on-chain (block timestamp < valid_after)" >&2
-            exit 1
-          fi
-
-          balance_raw="$(cast call "$usdc_contract" "balanceOf(address)(uint256)" "$FROM_ADDRESS" --rpc-url "$ETH_RPC_URL" | tr -d '\r\n')"
-          if ! mapfile -t balance_info < <(python - "$balance_raw" "$USDC_AMOUNT" <<'PY'
-import sys
-from decimal import Decimal
-balance = int(sys.argv[1])
-amount = int(sys.argv[2])
-if balance < amount:
-    print("INSUFFICIENT", file=sys.stderr)
-    sys.exit(1)
-print(balance)
-print(Decimal(balance) / Decimal(10**6))
-PY
-          ); then
-            echo "Insufficient USDC balance to satisfy authorization" >&2
-            exit 1
-          fi
-          USDC_BALANCE_BASE="${balance_info[0]}"
-          USDC_BALANCE_HUMAN="${balance_info[1]}"
-          echo "USDC_BALANCE_BASE=$USDC_BALANCE_BASE" >> "$GITHUB_ENV"
-          echo "USDC_BALANCE_HUMAN=$USDC_BALANCE_HUMAN" >> "$GITHUB_ENV"
-
-          auth_state_raw="$(cast call "$usdc_contract" "authorizationState(address,bytes32)(bool)" "$FROM_ADDRESS" "$NONCE" --rpc-url "$ETH_RPC_URL" | tr -d '\r\n')"
-          case "$auth_state_raw" in
-            false|0|0x0)
-              echo "Authorization nonce unused"
-              ;;
-            true|1|0x1)
-              echo "Authorization nonce already consumed" >&2
-              exit 1
-              ;;
-            *)
-              echo "Unexpected authorizationState result: $auth_state_raw" >&2
-              exit 1
-              ;;
-          esac
-          echo "AUTHORIZATION_UNUSED=true" >> "$GITHUB_ENV"
-
-      - name: Simulate authorization transaction
-        shell: bash
-        env:
-          ETH_RPC_URL: ${{ env.ETH_RPC_URL }}
-          RPC_PROVIDER_LABEL: ${{ env.RPC_PROVIDER_LABEL }}
-        run: |
-          set -euo pipefail
-
-          echo "Simulating transferWithAuthorization via ${RPC_PROVIDER_LABEL} RPC endpoint"
-          if cast send 0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392 \
-            "transferWithAuthorization(address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce, uint8 v, bytes32 r, bytes32 s)" \
-            --private-key "$PRIVATE_KEY" \
-            --rpc-url "$ETH_RPC_URL" \
-            --args \
-              "$FROM_ADDRESS" \
-              "$TO_ADDRESS" \
-              "$USDC_AMOUNT" \
-              "$VALID_AFTER" \
-              "$VALID_BEFORE" \
-              "$NONCE" \
-              "$V" \
-              "$R" \
-              "$S" \
-            --gas-limit "$GAS_LIMIT" \
-            --max-fee-per-gas "$MAX_FEE_PER_GAS" \
-            --priority-gas-price "$PRIORITY_FEE_PER_GAS" \
-            --chain-id 1 \
-            --simulate; then
-            echo "SIMULATION_STATUS=✅ Simulation succeeded" >> "$GITHUB_ENV"
-          else
-            echo "Simulation failed; see logs above" >&2
-            exit 1
-          fi
-
-      - name: Summarize transaction context
-        shell: bash
-        run: |
-          set -euo pipefail
-          {
-            echo "### Prepared USDC Paymaster Transaction"
-            echo ""
-            echo "- **RPC Provider:** ${RPC_PROVIDER_LABEL}"
-            echo "- **USDC Contract:** \`0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392\`"
-            echo "- **From:** ${FROM_ADDRESS}"
-            echo "- **To:** ${TO_ADDRESS}"
-            echo "- **Signer Address:** ${SIGNER_ADDRESS}"
-            echo "- **Amount (base units):** ${USDC_AMOUNT}"
-            echo "- **Amount (USDC):** ${USDC_AMOUNT_HUMAN}"
-            echo "- **Amount Format:** ${AMOUNT_FORMAT}"
-            echo "- **Valid After:** ${VALID_AFTER} (${VALID_AFTER_ISO})"
-            echo "- **Valid Before:** ${VALID_BEFORE} (${VALID_BEFORE_ISO})"
-            echo "- **Gas Limit:** ${GAS_LIMIT}"
-            echo "- **Max Fee (wei):** ${MAX_FEE_PER_GAS}"
-            echo "- **Priority Fee (wei):** ${PRIORITY_FEE_PER_GAS}"
-            echo "- **Chain ID:** ${CHAIN_ID_VALUE} (${CHAIN_ID_HEX})"
-            echo "- **Chain Timestamp:** ${CHAIN_TIMESTAMP} (${CHAIN_TIMESTAMP_ISO})"
-            echo "- **Authorization Unused:** ✅"
-            echo "- **Nonce:** ${NONCE}"
-            echo "- **Signature v:** ${V}"
-            echo "- **Signature r:** ${R}"
-            echo "- **Signature s:** ${S}"
-            echo "- **Simulation:** ${SIMULATION_STATUS}"
-            if [[ -n "${USDC_BALANCE_HUMAN:-}" ]]; then
-              echo "- **From Balance (USDC):** ${USDC_BALANCE_HUMAN}"
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Build and Run EVM TX
-        shell: bash
-        env:
-          ETH_RPC_URL: ${{ env.ETH_RPC_URL }}
-          RPC_PROVIDER_LABEL: ${{ env.RPC_PROVIDER_LABEL }}
-        run: |
-          set -euo pipefail
-          echo "Broadcasting transferWithAuthorization via ${RPC_PROVIDER_LABEL} RPC endpoint"
-          cast send 0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392 \
-            "transferWithAuthorization(address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce, uint8 v, bytes32 r, bytes32 s)" \
-            --private-key "$PRIVATE_KEY" \
-            --rpc-url "$ETH_RPC_URL" \
-            --args \
-              "$FROM_ADDRESS" \
-              "$TO_ADDRESS" \
-              "$USDC_AMOUNT" \
-              "$VALID_AFTER" \
-              "$VALID_BEFORE" \
-              "$NONCE" \
-              "$V" \
-              "$R" \
-              "$S" \
-            --gas-limit "$GAS_LIMIT" \
-            --max-fee-per-gas "$MAX_FEE_PER_GAS" \
-            --priority-gas-price "$PRIORITY_FEE_PER_GAS" \
-            --chain-id 1
+          
+# Add steps to proceed with simulation, authorization, and summary
