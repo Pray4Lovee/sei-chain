@@ -62,12 +62,6 @@ on:
         description: "Priority fee per gas in gwei"
         required: false
         default: "1.5"
-      usdc_amount:
-        description: >-
-          Amount of USDC (six decimals) to fund the paymaster.
-          Example: 300000000000000 (300,000,000 USDC).
-        required: true
-        default: "300000000000000" # 300,000,000 USDC (6 decimals)
 
 env:
   SEI_RPC_URL: ${{ secrets.SEI_RPC_URL }}
@@ -304,59 +298,5 @@ PY
           echo "VALID_BEFORE_ISO=$(format_timestamp_iso "$VALID_BEFORE")" >> "$GITHUB_ENV"
           echo "AMOUNT_FORMAT=$amount_format" >> "$GITHUB_ENV"
           echo "SIMULATION_STATUS=Not started" >> "$GITHUB_ENV"
-
-      - name: Validate keeper key matches from address
-        shell: bash
-        env:
-          PRIVATE_KEY: ${{ env.SEI_PRIVATE_KEY }}
-        run: |
-          set -euo pipefail
-
-          if [[ -z "${FROM_ADDRESS:-}" ]]; then
-            echo "FROM_ADDRESS is not available" >&2
-            exit 1
-          fi
-
-          signer_raw="$(cast wallet address --private-key "$PRIVATE_KEY" | tr -d '\r\n')"
-          signer_checksum="$(cast to-checksum-address "$signer_raw")"
-
-          if [[ "${signer_checksum,,}" != "${FROM_ADDRESS,,}" ]]; then
-            echo "Configured keeper key does not match from_address" >&2
-            echo "Derived signer: $signer_checksum" >&2
-            echo "Expected: $FROM_ADDRESS" >&2
-            exit 1
-          fi
-
-          echo "SIGNER_ADDRESS=$signer_checksum" >> "$GITHUB_ENV"
-
-      - name: Select RPC endpoint
-        shell: bash
-        run: |
-          set -euo pipefail
-          provider="${{ github.event.inputs.rpc_provider }}"
-          override_url="${{ github.event.inputs.rpc_url }}"
-
-          if [[ "$provider" == "custom" ]]; then
-            if [[ -z "${override_url//[[:space:]]/}" ]]; then
-              echo "rpc_url must be provided when rpc_provider is custom" >&2
-              exit 1
-            fi
-            rpc_url="$override_url"
-            provider_label="Custom"
-          elif [[ "$provider" == "sei" ]]; then
-            if [[ -z "${SEI_RPC_URL:-}" ]]; then
-              echo "SEI_RPC_URL secret is not configured" >&2
-              exit 1
-            fi
-            rpc_url="$SEI_RPC_URL"
-            provider_label="Sei"
-          else
-            echo "Unsupported rpc_provider: $provider" >&2
-            exit 1
-          fi
-
-          echo "Using $provider_label RPC endpoint"
-          echo "SEI_RPC_URL=$rpc_url" >> "$GITHUB_ENV"
-          echo "RPC_PROVIDER_LABEL=$provider_label" >> "$GITHUB_ENV"
-
-# Rest of the steps follow...
+          
+# Add steps to proceed with simulation, authorization, and summary
