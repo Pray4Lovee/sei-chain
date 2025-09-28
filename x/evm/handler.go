@@ -31,16 +31,21 @@ func NewHandler(k *keeper.Keeper) sdk.Handler {
 			res, err := msgServer.AssociateContractAddress(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgClaim:
-			res, err := msgServer.Claim(sdk.WrapSDKContext(ctx), msg)
-			return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgClaimSpecific:
-			res, err := msgServer.ClaimSpecific(sdk.WrapSDKContext(ctx), msg)
-			return sdk.WrapServiceResult(ctx, res, err)
-		default:
-			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)
-			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
-		}
-	}
+if err := k.Claim(ctx, msg); err != nil {
+    return nil, err
+}
+return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+
+// Alternatively, if using msgServer approach
+res, err := msgServer.Claim(sdk.WrapSDKContext(ctx), msg)
+return sdk.WrapServiceResult(ctx, res, err)
+
+case *types.MsgClaimSpecific:
+    res, err := msgServer.ClaimSpecific(sdk.WrapSDKContext(ctx), msg)
+    return sdk.WrapServiceResult(ctx, res, err)
+default:
+    errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)
+    return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
 }
 
 func NewProposalHandler(k keeper.Keeper) govtypes.Handler {
