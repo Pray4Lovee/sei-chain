@@ -1,4 +1,4 @@
-"""Utilities for KinBridge claim attribution."""
+"""Utilities for KinBridge attribution helpers."""
 
 from .github_helpers import (
     CommitAuthor,
