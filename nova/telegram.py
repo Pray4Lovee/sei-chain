@@ -1,6 +1,6 @@
 import requests, yaml
 
-with open("config.yaml") as f:
+with open("config.yaml", "r", encoding="utf-8") as f:
     config = yaml.safe_load(f)
 
 def send_alert(msg):

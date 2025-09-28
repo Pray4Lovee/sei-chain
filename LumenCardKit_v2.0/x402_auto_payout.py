@@ -1,57 +1,74 @@
-"""Create a payout receipt for LumenCardKit using x402 semantics.
+"""x402 payout receipt generator.
 
-This script reads the local wallet address and prepares a memo that can be
-used for an x402 payment.  It optionally accepts the payer address and amount
-as command line arguments so the resulting receipt works with the `x402.sh`
-royalty table generator.
+This script records payout receipts for the x402 system. It reads the local
+wallet (payee) from ~/.lumen_wallet.txt and prepares a memo. It supports
+recording:
+  - chain/network identifier (default: "sei")
+  - payer address (optional)
+  - amount (optional)
 
-Usage:
-    python x402_auto_payout.py <payer> <amount>
-
-If no payer or amount is provided the fields will default to "unknown" and 0
-respectively.
+Each receipt is stored in receipts.json with fields:
+  payer, payee, amount, memo, timestamp, chain
 """
 
+import argparse
 import json
 import os
-import sys
 import time
+from datetime import datetime, timezone
 
 
 def main() -> None:
-    try:
-        with open(os.path.expanduser("~/.lumen_wallet.txt"), "r") as f:
-            payee = f.read().strip()
+    parser = argparse.ArgumentParser(description="Prepare an x402 payout receipt")
+    parser.add_argument("--chain", default="sei", help="Chain or network identifier")
+    parser.add_argument("--payer", default="unknown", help="Payer address")
+    parser.add_argument(
+        "--amount",
+        type=int,
+        default=0,
+        help="Payout amount (integer, e.g. token units)",
+    )
+    args = parser.parse_args()
 
-        payer = sys.argv[1] if len(sys.argv) > 1 else "unknown"
-        amount = int(sys.argv[2]) if len(sys.argv) > 2 else 0
+    # Read payee wallet
+    wallet_path = os.path.expanduser("~/.lumen_wallet.txt")
+    if not os.path.exists(wallet_path):
+        raise FileNotFoundError(f"Wallet file not found at {wallet_path}")
+    with open(wallet_path, "r", encoding="utf-8") as f:
+        payee = f.read().strip()
 
-        memo = f"x402::payout::{payee}::{int(time.time())}"
-        receipt = {
-            "payer": payer,
-            "payee": payee,
-            "amount": amount,
-            "memo": memo,
-            "timestamp": time.ctime(),
-        }
+    # Construct memo & receipt
+    now = datetime.now(timezone.utc)
+    memo = f"x402::payout::{payee}::{int(now.timestamp())}"
+    receipt = {
+        "payer": args.payer,
+        "payee": payee,
+        "amount": args.amount,
+        "memo": memo,
+        "timestamp": now.isoformat().replace("+00:00", "Z"),
+        "chain": args.chain,
+    }
 
-        receipts: list[dict]
+    # Append to receipts.json
+    receipts_path = os.path.join(os.path.dirname(__file__), "receipts.json")
+    if os.path.exists(receipts_path):
         try:
-            with open("receipts.json", "r") as r:
-                receipts = json.load(r)
-        except FileNotFoundError:
-            receipts = []
+            with open(receipts_path, "r") as r:
+                data = json.load(r)
+        except json.JSONDecodeError:
+            data = []
+    else:
+        data = []
 
-        receipts.append(receipt)
+    data.append(receipt)
+    with open(receipts_path, "w") as r:
+        json.dump(data, r, indent=2)
 
-        with open("receipts.json", "w") as r:
-            json.dump(receipts, r, indent=2)
-
-        print("✅ x402 payout triggered (receipt stored).")
-
-    except Exception as e:  # pragma: no cover - script style error handling
-        print(f"⚠️ Error: {e}")
+    print("✅ x402 payout receipt stored.")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"⚠️ Error: {e}")

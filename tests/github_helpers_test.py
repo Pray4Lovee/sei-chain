@@ -2,16 +2,19 @@
 
 from __future__ import annotations
 
-from typing import Dict
-from unittest.mock import MagicMock
+from pathlib import Path
+import sys
 
 import pytest
+from unittest.mock import MagicMock
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from claim_kin_agent_attribution.github_helpers import (
     CommitAuthor,
-    GitHubSourceControlHistoryItemDetailsProvider,
     _extract_commit_author_details,
     _normalise_repo,
+    GitHubSourceControlHistoryItemDetailsProvider,
 )
 
 
@@ -19,20 +22,25 @@ from claim_kin_agent_attribution.github_helpers import (
 # Core logic: _extract_commit_author_details()
 # ----------------------------------------------------------------------
 
-
-def test_extract_commit_author_prefers_login_over_name() -> None:
+def test_extract_commit_author_prefers_login_over_name():
     payload = {"author": {"login": "octocat", "name": "The Octocat"}}
     result = _extract_commit_author_details(payload)
     assert result == CommitAuthor("octocat", "author")
 
 
-def test_extract_commit_author_fallbacks_order() -> None:
-    payload = {"commit": {"committer": {"name": "Bob Builder"}}}
+def test_extract_commit_author_fallbacks_order():
+    payload = {
+        "commit": {
+            "committer": {
+                "name": "Bob Builder",
+            }
+        }
+    }
     result = _extract_commit_author_details(payload)
     assert result == CommitAuthor("Bob Builder", "commit.committer")
 
 
-def test_extract_commit_author_empty_payload_returns_none() -> None:
+def test_extract_commit_author_empty_payload_returns_none():
     result = _extract_commit_author_details({})
     assert result is None
 
@@ -40,7 +48,6 @@ def test_extract_commit_author_empty_payload_returns_none() -> None:
 # ----------------------------------------------------------------------
 # Repo normalizer: _normalise_repo()
 # ----------------------------------------------------------------------
-
 
 @pytest.mark.parametrize(
     "input_repo, expected",
@@ -52,7 +59,7 @@ def test_extract_commit_author_empty_payload_returns_none() -> None:
         ("/user/repo/", "user/repo"),
     ],
 )
-def test_repo_normalisation(input_repo: str, expected: str) -> None:
+def test_repo_normalisation(input_repo, expected):
     assert _normalise_repo(input_repo) == expected
 
 
@@ -60,19 +67,18 @@ def test_repo_normalisation(input_repo: str, expected: str) -> None:
 # GitHub API wrapper logic: GitHubSourceControlHistoryItemDetailsProvider
 # ----------------------------------------------------------------------
 
-
-def make_fake_response(payload: Dict[str, object]):
+def make_fake_response(payload: dict):
     class FakeResponse:
-        def raise_for_status(self) -> None:
+        def raise_for_status(self):  # pragma: no cover - trivial
             pass
 
-        def json(self) -> Dict[str, object]:
+        def json(self):
             return payload
 
     return FakeResponse()
 
 
-def test_provider_returns_correct_author_from_author_login() -> None:
+def test_provider_returns_correct_author_from_author_login():
     payload = {"author": {"login": "octocat"}}
     session = MagicMock()
     session.get.return_value = make_fake_response(payload)
@@ -85,8 +91,14 @@ def test_provider_returns_correct_author_from_author_login() -> None:
     assert author.source == "author"
 
 
-def test_provider_handles_commit_author_name() -> None:
-    payload = {"commit": {"author": {"name": "Alice Wonderland"}}}
+def test_provider_handles_commit_author_name():
+    payload = {
+        "commit": {
+            "author": {
+                "name": "Alice Wonderland",
+            }
+        }
+    }
     session = MagicMock()
     session.get.return_value = make_fake_response(payload)
 
@@ -96,7 +108,7 @@ def test_provider_handles_commit_author_name() -> None:
     assert author == CommitAuthor("Alice Wonderland", "commit.author")
 
 
-def test_provider_handles_missing_author_fields_gracefully() -> None:
+def test_provider_handles_missing_author_fields_gracefully():
     payload = {"commit": {"message": "no author info"}}
     session = MagicMock()
     session.get.return_value = make_fake_response(payload)
@@ -107,7 +119,7 @@ def test_provider_handles_missing_author_fields_gracefully() -> None:
     assert author is None
 
 
-def test_provider_handles_api_error_and_logs() -> None:
+def test_provider_handles_api_error_and_logs(monkeypatch):
     session = MagicMock()
     session.get.side_effect = Exception("API down")
 
@@ -117,7 +129,7 @@ def test_provider_handles_api_error_and_logs() -> None:
     assert author is None
 
 
-def test_provider_batch_get_commit_authors() -> None:
+def test_provider_batch_get_commit_authors():
     payloads = {
         "sha1": {"author": {"login": "octocat"}},
         "sha2": {"commit": {"committer": {"name": "Builder Bob"}}},
@@ -126,7 +138,7 @@ def test_provider_batch_get_commit_authors() -> None:
 
     session = MagicMock()
 
-    def mock_get(url, headers=None, timeout=10):  # type: ignore[no-untyped-def]
+    def mock_get(url, headers=None, timeout=10):  # pragma: no cover - simple helper
         if "sha1" in url:
             return make_fake_response(payloads["sha1"])
         if "sha2" in url:

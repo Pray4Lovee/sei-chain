@@ -1,4 +1,4 @@
-"""Helpers for attributing KinBridge commits to GitHub users."""
+"""Utilities for KinBridge attribution helpers."""
 
 from .github_helpers import (
     CommitAuthor,

@@ -1,39 +1,39 @@
-# LumenCardKit
+# LumenCardKit v2.0
 
-Utilities for issuing and managing LumenCard wallets. The scripts in this
-folder are intentionally simple so they can be adapted to your own workflow or
-chain integration.
+Utilities for preparing automated payouts from Lumen cards.
 
-## Included scripts
+## Cross-chain payouts
 
-- `sunset_wallet.py` – generate a new wallet and sigil file.
-- `generate_qr_code.py` – create a QR code from the sigil.
-- `lumen_checkout.py` – output an ephemeral checkout session identifier.
-- `fund_lumen_wallet.sh` – simulate funding the generated wallet.
-- `send_lumen_email.py` – email the wallet and sigil using a local SMTP server.
-- `x402_auto_payout.py` – produce x402 compatible payout receipts.
+USDC payouts can occur on different chains. Move the required USDC to the
+destination chain via Circle's Cross-Chain Transfer Protocol (CCTP) before
+generating a receipt. Once the funds arrive, run the payout helper and
+specify the chain so downstream tools can bucket receipts per chain.
 
-## x402 integration
-
-`x402_auto_payout.py` reads the payee wallet from `~/.lumen_wallet.txt` and
-optionally accepts a payer address and amount:
-
-```bash
-python x402_auto_payout.py <payer> <amount>
+```
+python x402_auto_payout.py --chain sei
 ```
 
-Each execution appends a JSON object to `receipts.json` containing the payer,
-payee, amount, memo and timestamp.  These receipts can then be aggregated into a
-royalty table using `x402.sh`:
+If `--chain` is omitted the script defaults to `sei`.
 
-```bash
-./x402.sh receipts.json
+To inspect receipts for a specific chain you can use `jq`:
+
+```
+jq '.[] | select(.chain=="sei")' receipts.json
 ```
 
-This workflow mirrors the examples in the [x402 documentation](https://www.docs.sei.io/)
-and allows LumenCard payments to be tracked alongside other x402 transactions.
+## `receipts.json` schema
 
-## License
+Payout receipts are stored in `receipts.json` as a JSON array. Each entry
+contains:
 
-This directory is licensed under the [MIT License](LICENSE). You're free to use,
-modify, and distribute these utilities subject to the terms of that license.
+```
+{
+  "wallet": "<recipient wallet address>",
+  "memo": "x402::payout::<wallet>::<timestamp>",
+  "timestamp": "<human readable time>",
+  "chain": "<chain identifier>"
+}
+```
+
+Tools such as `x402.sh` can group payouts by the `chain` field to generate
+reports or initiate on-chain payouts.
