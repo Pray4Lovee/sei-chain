@@ -29,11 +29,10 @@ def test_extract_commit_author_prefers_login_over_name():
 
 
 def test_extract_commit_author_fallbacks_order():
+    # commit.committer.name fallback path
     payload = {
         "commit": {
-            "committer": {
-                "name": "Bob Builder",
-            }
+            "committer": {"name": "Bob Builder"}
         }
     }
     result = _extract_commit_author_details(payload)
