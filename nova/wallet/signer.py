@@ -1,6 +1,6 @@
 import json
 import subprocess
-from typing import Optional
+from typing import Optional, Iterable
 
 from utils.logger import log
 
@@ -46,3 +46,24 @@ def available_balance(cfg: dict, addr: str) -> int:
         return int(json.loads(out)["balances"][0]["amount"])
     except (KeyError, IndexError, ValueError, json.JSONDecodeError):
         return 0
+
+
+class LocalSigner:
+    """Mock signer for development and dry-run flows."""
+
+    def __init__(self, address: str) -> None:
+        self._address = address
+        self._balance = 2_000_000
+
+    def withdraw_rewards(self, validators: Iterable[str], dry_run: bool = False) -> int:
+        # Mock behavior for dry-run
+        return 120000 if not dry_run else 0
+
+    def get_balance(self) -> int:
+        return self._balance
+
+    def delegate(self, validator: str, amount: int) -> str:
+        if amount > self._balance:
+            raise ValueError("Insufficient balance")
+        self._balance -= amount
+        return f"MOCKTX-{validator[-6:]}-{amount}"

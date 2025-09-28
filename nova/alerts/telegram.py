@@ -1,7 +1,34 @@
+from __future__ import annotations
+
+from typing import Optional
+from urllib import request, parse
 import requests
 
-from config.loader import load_config
+class TelegramProvider:
+    def __init__(self, token: str, chat_id: str, parse_mode: Optional[str] = "MarkdownV2") -> None:
+        self._token = token
+        self._chat_id = chat_id
+        self._parse_mode = parse_mode
 
+    def send(self, message: str, level: str = "info") -> None:
+        prefix = {
+            "success": "✅",
+            "warning": "⚠️",
+            "error": "❌",
+        }.get(level, "ℹ️")
+        payload = {
+            "chat_id": self._chat_id,
+            "text": f"{prefix} {message}",
+        }
+        if self._parse_mode:
+            payload["parse_mode"] = self._parse_mode
+        data = parse.urlencode(payload).encode()
+        try:
+            request.urlopen(  # nosec B310 - used for simple webhook call
+                f"https://api.telegram.org/bot{self._token}/sendMessage", data=data, timeout=5.0
+            )
+        except Exception:
+            pass
 
 def notify(msg: str) -> None:
     cfg = load_config()
@@ -11,5 +38,6 @@ def notify(msg: str) -> None:
     token = cfg["alerts"]["telegram_token"]
     chat_id = cfg["alerts"]["chat_id"]
 
-    url = f"https://api.telegram.org/bot{token}/sendMessage"
-    requests.post(url, data={"chat_id": chat_id, "text": msg}, timeout=10)
+    # Using the new TelegramProvider class
+    provider = TelegramProvider(token=token, chat_id=chat_id)
+    provider.send(message=msg)

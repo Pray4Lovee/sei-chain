@@ -71,11 +71,46 @@ jobs:
         run: |
           until [ "$(cat build/generated/launch.complete | wc -l)" -eq 4 ]; do sleep 10; done
           sleep 10
+      - name: Generate owed table
+        run: |
+          set -euo pipefail
+          if [ -f owed.txt ]; then
+            echo "owed.txt already present. Skipping generation."
+            exit 0
+          fi
+
+          RECEIPTS=""
+          if [ -f ./x402/receipts.json ]; then
+            RECEIPTS=./x402/receipts.json
+          elif [ -f ./.x402/receipts.json ]; then
+            RECEIPTS=./.x402/receipts.json
+          fi
+
+          if [ -n "$RECEIPTS" ]; then
+            if bash x402.sh "$RECEIPTS" > owed.txt; then
+              echo "Generated owed.txt from $RECEIPTS"
+            else
+              echo "⚠️ Failed to generate owed.txt from $RECEIPTS" >&2
+              echo "⚠️ Failed to generate owed table from $RECEIPTS." > owed.txt
+              echo "" >> owed.txt
+              echo "TOTAL OWED: 0" >> owed.txt
+            fi
+          else
+            echo "⚠️ No receipts.json found; creating placeholder owed.txt" >&2
+            echo "⚠️ No receipts manifest found for owed table generation." > owed.txt
+            echo "" >> owed.txt
+            echo "TOTAL OWED: 0" >> owed.txt
+          fi
       - name: 💬 Comment results on PR
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            if (!context.payload.pull_request) {
+              core.info('No pull request payload found; skipping comment creation.');
+              return;
+            }
+
             const fs = require('fs');
             const owed = fs.readFileSync('owed.txt', 'utf8');
             const banner = [
@@ -91,13 +126,6 @@ jobs:
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: prNumber,
-              body: banner
-            });
-
-            const prNumber = context.payload.pull_request.number;
-            await github.rest.issues.createComment({
-              ...context.repo,
               issue_number: prNumber,
               body: banner
             });
