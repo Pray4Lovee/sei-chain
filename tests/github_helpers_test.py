@@ -1,16 +1,14 @@
 """Robust tests for GitHub attribution and commit author resolution."""
+
 from __future__ import annotations
 
-import sys
 from pathlib import Path
+import sys
 
 import pytest
 from unittest.mock import MagicMock
 
-# Ensure the project root is importable when tests are run directly.
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from claim_kin_agent_attribution.github_helpers import (
     CommitAuthor,
@@ -68,10 +66,9 @@ def test_repo_normalisation(input_repo, expected):
 # GitHub API wrapper logic: GitHubSourceControlHistoryItemDetailsProvider
 # ----------------------------------------------------------------------
 
-
 def make_fake_response(payload: dict):
     class FakeResponse:
-        def raise_for_status(self):
+        def raise_for_status(self):  # pragma: no cover - trivial
             pass
 
         def json(self):
@@ -96,7 +93,9 @@ def test_provider_returns_correct_author_from_author_login():
 def test_provider_handles_commit_author_name():
     payload = {
         "commit": {
-            "author": {"name": "Alice Wonderland"}
+            "author": {
+                "name": "Alice Wonderland",
+            }
         }
     }
     session = MagicMock()
@@ -119,7 +118,7 @@ def test_provider_handles_missing_author_fields_gracefully():
     assert author is None
 
 
-def test_provider_handles_api_error_and_logs():
+def test_provider_handles_api_error_and_logs(monkeypatch):
     session = MagicMock()
     session.get.side_effect = Exception("API down")
 
@@ -133,12 +132,12 @@ def test_provider_batch_get_commit_authors():
     payloads = {
         "sha1": {"author": {"login": "octocat"}},
         "sha2": {"commit": {"committer": {"name": "Builder Bob"}}},
-        "sha3": {},  # Will be None
+        "sha3": {},
     }
 
     session = MagicMock()
 
-    def mock_get(url, headers=None, timeout=10):
+    def mock_get(url, headers=None, timeout=10):  # pragma: no cover - simple helper
         if "sha1" in url:
             return make_fake_response(payloads["sha1"])
         if "sha2" in url:
@@ -155,4 +154,3 @@ def test_provider_batch_get_commit_authors():
     assert results["sha1"] == CommitAuthor("octocat", "author")
     assert results["sha2"] == CommitAuthor("Builder Bob", "commit.committer")
     assert results["sha3"] is None
-

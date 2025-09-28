@@ -3,7 +3,8 @@ from utils import run, get_balance, log, get_address
 from validators import select_validator
 from telegram import send_alert
 
-with open("config.yaml") as f:
+# Load configuration
+with open("config.yaml", "r", encoding="utf-8") as f:
     config = yaml.safe_load(f)
 
 while True:
@@ -18,7 +19,7 @@ while True:
         f"--from {config['wallet_name']} --chain-id {config['chain_id']} "
         f"--fees {config['fee']} --gas {config['gas']} "
         f"--node {config['rpc_node']} -y")
-
+    
     time.sleep(12)
 
     # Step 2: Get balance

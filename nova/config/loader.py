@@ -1,4 +1,3 @@
-"""Load and validate Nova configuration profiles."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
