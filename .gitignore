@@ -63,3 +63,6 @@ integration_test/dapp_tests/artifacts
 
 # reward sdk build artifacts
 sdk/dist/
+
+# Backend database file
+txhistory.db
