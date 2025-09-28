@@ -1,4 +1,5 @@
 """Robust tests for GitHub attribution and commit author resolution."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -65,7 +66,6 @@ def test_repo_normalisation(input_repo, expected):
 # ----------------------------------------------------------------------
 # GitHub API wrapper logic: GitHubSourceControlHistoryItemDetailsProvider
 # ----------------------------------------------------------------------
-
 
 def make_fake_response(payload: dict):
     class FakeResponse:

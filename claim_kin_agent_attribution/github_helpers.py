@@ -12,18 +12,15 @@ except Exception:  # pragma: no cover - gracefully handle absence during tests
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass(frozen=True)
 class CommitAuthor:
     """Simple representation of a commit author."""
-
     identifier: str
     source: str
 
 
 def _normalise_repo(repo: str) -> str:
     """Normalise GitHub repository identifiers to ``owner/name`` format."""
-
     cleaned = repo.strip()
     if cleaned.startswith("https://github.com/"):
         cleaned = cleaned[len("https://github.com/") :]
@@ -35,7 +32,6 @@ def _normalise_repo(repo: str) -> str:
 
 def _extract_commit_author_details(payload: Mapping[str, Any]) -> Optional[CommitAuthor]:
     """Extract the best available author identifier from a commit payload."""
-
     if not payload:
         return None
 
@@ -72,7 +68,6 @@ class GitHubSourceControlHistoryItemDetailsProvider:
 
     def __init__(
         self,
-        *,
         session: Any | None = None,
         base_url: str = "https://api.github.com",
         timeout: int = 10,
@@ -111,3 +106,11 @@ class GitHubSourceControlHistoryItemDetailsProvider:
         for sha in shas:
             results[sha] = self.get_commit_author_details(repo, sha)
         return results
+
+
+__all__ = [
+    "CommitAuthor",
+    "GitHubSourceControlHistoryItemDetailsProvider",
+    "_extract_commit_author_details",
+    "_normalise_repo",
+]
