@@ -1,9 +1,7 @@
-"""Validator yield oracle placeholder."""
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Iterable, List
-
 
 @dataclass
 class ValidatorScore:
@@ -38,3 +36,11 @@ class YieldOracle:
 
     def _fetch_commission(self, validator: str) -> float:
         return 0.05
+
+
+def get_validators() -> list[str]:
+    """Returns a placeholder list of validator addresses."""
+    return [
+        "seivaloper1example000",
+        "seivaloper1example111",
+    ]
