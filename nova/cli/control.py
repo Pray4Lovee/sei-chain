@@ -1,8 +1,6 @@
-"""Nova CLI entrypoints."""
 from __future__ import annotations
 
 from pathlib import Path
-
 import click
 
 from nova.alerts import AlertRouter, TelegramProvider
@@ -15,11 +13,9 @@ from nova.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-
 @click.group()
 def nova() -> None:
     """Nova – SEI validator compounding control plane."""
-
 
 @nova.command()
 @click.option("--profile", type=click.Path(exists=True, path_type=Path), required=True)
@@ -30,7 +26,6 @@ def run(profile: Path, dry_run: bool) -> None:
     orchestrator = _build_orchestrator(cfg)
     orchestrator.run(dry_run=dry_run)
 
-
 @nova.command()
 @click.option("--profile", type=click.Path(exists=True, path_type=Path), required=True)
 def status(profile: Path) -> None:
@@ -40,7 +35,6 @@ def status(profile: Path) -> None:
     balance = wallet.get_spendable_balance()
     click.echo(f"Wallet: {cfg.wallet.address}")
     click.echo(f"Balance: {balance} usei")
-
 
 @nova.command()
 @click.option("--profile", type=click.Path(exists=True, path_type=Path), required=True)
@@ -58,7 +52,6 @@ def auto(profile: Path) -> None:
     except KeyboardInterrupt:
         scheduler.stop()
 
-
 def _build_orchestrator(cfg):
     wallet = _build_wallet(cfg)
     oracle = YieldOracle(cfg.chain.rpc, cfg.chain.rest)
@@ -70,7 +63,6 @@ def _build_orchestrator(cfg):
     alerts = _build_alerts(cfg)
     return NovaOrchestrator(cfg, wallet, oracle, risk_engine, alerts)
 
-
 def _build_wallet(cfg):
     signer_type = cfg.wallet.signer
     if signer_type == "vault" and cfg.security and cfg.security.vault:
@@ -80,14 +72,12 @@ def _build_wallet(cfg):
         signer = LocalSigner(cfg.wallet.address)
     return WalletManager(cfg, signer)
 
-
 def _build_alerts(cfg):
     providers = []
     if cfg.alerts and cfg.alerts.telegram:
         tg = cfg.alerts.telegram
         providers.append(TelegramProvider(token=tg["token"], chat_id=tg["chat_id"]))
     return AlertRouter(providers)
-
 
 if __name__ == "__main__":
     nova()

@@ -1,10 +1,8 @@
-"""Telegram alert provider."""
 from __future__ import annotations
 
 from typing import Optional
-
 from urllib import request, parse
-
+import requests
 
 class TelegramProvider:
     def __init__(self, token: str, chat_id: str, parse_mode: Optional[str] = "MarkdownV2") -> None:
@@ -31,3 +29,15 @@ class TelegramProvider:
             )
         except Exception:
             pass
+
+def notify(msg: str) -> None:
+    cfg = load_config()
+    if not cfg.get("alerts", {}).get("enabled"):
+        return
+
+    token = cfg["alerts"]["telegram_token"]
+    chat_id = cfg["alerts"]["chat_id"]
+
+    # Using the new TelegramProvider class
+    provider = TelegramProvider(token=token, chat_id=chat_id)
+    provider.send(message=msg)
