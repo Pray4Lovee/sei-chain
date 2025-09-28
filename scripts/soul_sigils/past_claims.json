@@ -1,0 +1,17 @@
+[
+  {
+    "user": "0x1234abcd00000000000000000000000000000001",
+    "amount": 4.2,
+    "chain": "Sei",
+    "timestamp": "2025-09-21T14:12:00Z",
+    "holoVerified": true,
+    "moodHash": "mood-alpha"
+  },
+  {
+    "user": "0x5678efab00000000000000000000000000000002",
+    "amount": 1.8,
+    "chain": "Hyperliquid",
+    "timestamp": "2025-09-23T09:44:00Z",
+    "holoVerified": false
+  }
+]
