@@ -1,0 +1,12 @@
+{
+  "name": "nova-backend",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "express": "^4.19.2",
+    "node-fetch": "^3.3.2",
+    "sqlite": "^5.1.6",
+    "sqlite3": "^5.1.7"
+  }
+}
