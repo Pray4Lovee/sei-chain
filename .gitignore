@@ -63,3 +63,8 @@ integration_test/dapp_tests/artifacts
 
 # reward sdk build artifacts
 sdk/dist/
+
+# LumenCard/Nova artifacts
+backend/txhistory.db
+nova-portal/.next/
+nova-portal/node_modules/
