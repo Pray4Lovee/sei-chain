@@ -5,72 +5,58 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 /// @title SoulSigilNFT
-/// @notice Minimal ERC721 used to notarise KinBridge claims with off-chain proofs.
+/// @notice Soulbound ERC721 tokens minted to notarize successful royalty claims.
 contract SoulSigilNFT is ERC721URIStorage, Ownable {
+    uint256 private _tokenIdCounter;
 
-    uint256 private _nextTokenId;
-    string private _baseTokenURI;
+    mapping(address => bool) public approvedMinters;
 
-    mapping(bytes32 => bool) private _consumedProofs;
-    mapping(uint256 => bytes32) private _tokenProofs;
+    error SoulboundTransferBlocked();
+    error NotApprovedMinter();
+    error InvalidRecipient();
+    error EmptyURI();
 
-    event SigilMinted(address indexed to, uint256 indexed tokenId, bytes32 indexed proofHash, string proof);
-    event BaseURIUpdated(string previousBaseURI, string newBaseURI);
+    constructor() Ownable(msg.sender) ERC721("SoulSigilNFT", "SIGIL") {}
 
-    constructor(string memory baseTokenURI_) Ownable(msg.sender) ERC721("Soul Sigil", "SIGIL") {
-        _baseTokenURI = baseTokenURI_;
+    modifier onlyMinter() {
+        if (!approvedMinters[msg.sender]) {
+            revert NotApprovedMinter();
+        }
+        _;
     }
 
-    /// @notice Returns whether a proof hash has already been used for a mint.
-    function hasConsumedProof(bytes32 proofHash) external view returns (bool) {
-        return _consumedProofs[proofHash];
+    /// @notice Approves or revokes an account's ability to mint sigils.
+    function setMinter(address minter, bool approved) external onlyOwner {
+        approvedMinters[minter] = approved;
     }
 
-    /// @notice Returns the stored proof hash for a token.
-    function proofOf(uint256 tokenId) external view returns (bytes32) {
-        require(_exists(tokenId), "query for nonexistent token");
-        return _tokenProofs[tokenId];
-    }
+    /// @notice Mints a new soulbound NFT to the recipient with the provided metadata URI.
+    function mint(address to, string memory uri) external onlyMinter {
+        if (to == address(0)) {
+            revert InvalidRecipient();
+        }
+        if (bytes(uri).length == 0) {
+            revert EmptyURI();
+        }
 
-    /// @notice Updates the base URI that is prefixed to every token URI.
-    function setBaseURI(string calldata newBaseURI) external onlyOwner {
-        string memory previous = _baseTokenURI;
-        _baseTokenURI = newBaseURI;
-        emit BaseURIUpdated(previous, newBaseURI);
-    }
-
-    /// @notice Mints a new sigil for the specified account with the provided proof string.
-    /// @dev Proof strings are hashed to enforce uniqueness while keeping the raw string in the event log.
-    function mint(address to, string calldata proof) external onlyOwner returns (uint256) {
-        require(to != address(0), "invalid recipient");
-        require(bytes(proof).length != 0, "proof required");
-
-        bytes32 proofHash = keccak256(bytes(proof));
-        require(!_consumedProofs[proofHash], "proof already used");
-
-        uint256 tokenId = ++_nextTokenId;
+        uint256 tokenId = _tokenIdCounter;
+        _tokenIdCounter++;
 
         _safeMint(to, tokenId);
-        _tokenProofs[tokenId] = proofHash;
-        _consumedProofs[proofHash] = true;
-
-        if (bytes(_baseTokenURI).length != 0) {
-            string memory uri = string.concat(_baseTokenURI, _toHexString(proofHash));
-            _setTokenURI(tokenId, uri);
-        }
-
-        emit SigilMinted(to, tokenId, proofHash, proof);
-        return tokenId;
+        _setTokenURI(tokenId, uri);
     }
 
-    function _toHexString(bytes32 value) private pure returns (string memory) {
-        bytes memory alphabet = "0123456789abcdef";
-        bytes memory str = new bytes(64);
-        for (uint256 i = 0; i < 32; i++) {
-            str[i * 2] = alphabet[uint8(value[i] >> 4)];
-            str[i * 2 + 1] = alphabet[uint8(value[i] & 0x0f)];
+    /// @dev Prevents transfers after minting to keep tokens soulbound.
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 batchSize
+    ) internal override {
+        if (from != address(0) && to != address(0)) {
+            revert SoulboundTransferBlocked();
         }
-        return string.concat("0x", string(str));
+        super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
@@ -79,5 +65,13 @@ contract SoulSigilNFT is ERC721URIStorage, Ownable {
 
     function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
+    }
+
+    function approve(address, uint256) public pure override {
+        revert SoulboundTransferBlocked();
+    }
+
+    function setApprovalForAll(address, bool) public pure override {
+        revert SoulboundTransferBlocked();
     }
 }
