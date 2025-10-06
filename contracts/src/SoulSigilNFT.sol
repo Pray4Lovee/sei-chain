@@ -1,83 +1,66 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title SoulSigilNFT
-/// @notice Minimal ERC721 used to notarise KinBridge claims with off-chain proofs.
+/// @notice Soulbound ERC721 token used to notarise successful royalty claims.
 contract SoulSigilNFT is ERC721URIStorage, Ownable {
+    uint256 private _tokenIdCounter;
+    mapping(address => bool) public approvedMinters;
 
-    uint256 private _nextTokenId;
-    string private _baseTokenURI;
+    event MinterUpdated(address indexed minter, bool approved);
 
-    mapping(bytes32 => bool) private _consumedProofs;
-    mapping(uint256 => bytes32) private _tokenProofs;
+    constructor() Ownable(msg.sender) ERC721("SoulSigilNFT", "SIGIL") {}
 
-    event SigilMinted(address indexed to, uint256 indexed tokenId, bytes32 indexed proofHash, string proof);
-    event BaseURIUpdated(string previousBaseURI, string newBaseURI);
-
-    constructor(string memory baseTokenURI_) Ownable(msg.sender) ERC721("Soul Sigil", "SIGIL") {
-        _baseTokenURI = baseTokenURI_;
+    modifier onlyMinter() {
+        require(approvedMinters[msg.sender], "not approved");
+        _;
     }
 
-    /// @notice Returns whether a proof hash has already been used for a mint.
-    function hasConsumedProof(bytes32 proofHash) external view returns (bool) {
-        return _consumedProofs[proofHash];
+    /// @notice Allows the owner to approve or revoke minter permissions.
+    function setMinter(address minter, bool approved) external onlyOwner {
+        approvedMinters[minter] = approved;
+        emit MinterUpdated(minter, approved);
     }
 
-    /// @notice Returns the stored proof hash for a token.
-    function proofOf(uint256 tokenId) external view returns (bytes32) {
-        require(_exists(tokenId), "query for nonexistent token");
-        return _tokenProofs[tokenId];
-    }
-
-    /// @notice Updates the base URI that is prefixed to every token URI.
-    function setBaseURI(string calldata newBaseURI) external onlyOwner {
-        string memory previous = _baseTokenURI;
-        _baseTokenURI = newBaseURI;
-        emit BaseURIUpdated(previous, newBaseURI);
-    }
-
-    /// @notice Mints a new sigil for the specified account with the provided proof string.
-    /// @dev Proof strings are hashed to enforce uniqueness while keeping the raw string in the event log.
-    function mint(address to, string calldata proof) external onlyOwner returns (uint256) {
+    /// @notice Mints a soulbound NFT to the recipient with encoded metadata.
+    function mint(address to, string memory uri) external onlyMinter returns (uint256 tokenId) {
         require(to != address(0), "invalid recipient");
-        require(bytes(proof).length != 0, "proof required");
+        require(bytes(uri).length != 0, "uri required");
 
-        bytes32 proofHash = keccak256(bytes(proof));
-        require(!_consumedProofs[proofHash], "proof already used");
-
-        uint256 tokenId = ++_nextTokenId;
+        tokenId = _tokenIdCounter;
+        _tokenIdCounter++;
 
         _safeMint(to, tokenId);
-        _tokenProofs[tokenId] = proofHash;
-        _consumedProofs[proofHash] = true;
-
-        if (bytes(_baseTokenURI).length != 0) {
-            string memory uri = string.concat(_baseTokenURI, _toHexString(proofHash));
-            _setTokenURI(tokenId, uri);
-        }
-
-        emit SigilMinted(to, tokenId, proofHash, proof);
-        return tokenId;
+        _setTokenURI(tokenId, uri);
     }
 
-    function _toHexString(bytes32 value) private pure returns (string memory) {
-        bytes memory alphabet = "0123456789abcdef";
-        bytes memory str = new bytes(64);
-        for (uint256 i = 0; i < 32; i++) {
-            str[i * 2] = alphabet[uint8(value[i] >> 4)];
-            str[i * 2 + 1] = alphabet[uint8(value[i] & 0x0f)];
+    /// @dev Prevents transferring soulbound tokens while allowing minting and burning.
+    function _update(address to, uint256 tokenId, address auth)
+        internal
+        override(ERC721, ERC721URIStorage)
+        returns (address)
+    {
+        address from = _ownerOf(tokenId);
+        if (from != address(0) && to != address(0)) {
+            revert("Soulbound: no transfers");
         }
-        return string.concat("0x", string(str));
+        return super._update(to, tokenId, auth);
     }
 
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
         super._burn(tokenId);
     }
 
-    function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override(ERC721, ERC721URIStorage)
+        returns (string memory)
+    {
         return super.tokenURI(tokenId);
     }
 }
+
