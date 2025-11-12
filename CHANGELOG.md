@@ -31,6 +31,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 sei-chain
 * Add workflow to create and push Docker image
+* (feature) #2382 Add Python helper script `create-build_claim_tx.py` for building Sei MsgClaim transactions
 
 ## v6.1.4
 sei-chain
