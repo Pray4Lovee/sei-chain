@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.sha }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -19,5 +19,8 @@ jobs:
       issues: write
       pull-requests: write
     uses: sei-protocol/uci/.github/workflows/stale-check.yml@v0.0.3
-    with: 
+    with:
       days-before-pr-stale: 28
+      days-before-pr-close: 7
+      days-before-issue-stale: 30
+      days-before-issue-close: 7
