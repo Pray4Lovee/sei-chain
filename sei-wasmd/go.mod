@@ -126,7 +126,6 @@ require (
 	github.com/rs/zerolog v1.30.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
 	github.com/savaki/jq v0.0.0-20161209013833-0e6baecebbf8 // indirect
-	github.com/sei-protocol/sei-db v0.0.55 // indirect
 	github.com/sei-protocol/sei-tm-db v0.0.5 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -170,14 +169,13 @@ replace (
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
 	github.com/cosmos/cosmos-sdk => ../sei-cosmos
 	github.com/cosmos/iavl => github.com/sei-protocol/sei-iavl v0.2.0
-	github.com/cosmos/ibc-go/v3 => github.com/sei-protocol/sei-ibc-go/v3 v3.3.7
+	github.com/cosmos/ibc-go/v3 => ../sei-ibc-go
 	// Fix upstream GHSA-h395-qcrw-5vmq vulnerability.
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.7.0
 	// latest grpc doesn't work with with our modified proto compiler, so we need to enforce
 	// the following version across all dependencies.
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-	github.com/sei-protocol/sei-db => ../sei-db
 	github.com/tendermint/tendermint => ../sei-tendermint
 	github.com/tendermint/tm-db => github.com/sei-protocol/tm-db v0.0.4
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2

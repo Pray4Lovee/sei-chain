@@ -2,6 +2,7 @@ package app
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
@@ -36,6 +37,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
@@ -103,8 +105,11 @@ import (
 	"github.com/sei-protocol/sei-chain/app/upgrades"
 	v0upgrade "github.com/sei-protocol/sei-chain/app/upgrades/v0"
 	"github.com/sei-protocol/sei-chain/evmrpc"
+	evmrpcconfig "github.com/sei-protocol/sei-chain/evmrpc/config"
 	"github.com/sei-protocol/sei-chain/precompiles"
 	putils "github.com/sei-protocol/sei-chain/precompiles/utils"
+	"github.com/sei-protocol/sei-chain/sei-db/ss"
+	seidb "github.com/sei-protocol/sei-chain/sei-db/ss/types"
 	"github.com/sei-protocol/sei-chain/utils"
 	"github.com/sei-protocol/sei-chain/utils/metrics"
 	"github.com/sei-protocol/sei-chain/wasmbinding"
@@ -114,6 +119,7 @@ import (
 	"github.com/sei-protocol/sei-chain/x/evm"
 	evmante "github.com/sei-protocol/sei-chain/x/evm/ante"
 	"github.com/sei-protocol/sei-chain/x/evm/blocktest"
+	evmconfig "github.com/sei-protocol/sei-chain/x/evm/config"
 	evmkeeper "github.com/sei-protocol/sei-chain/x/evm/keeper"
 	"github.com/sei-protocol/sei-chain/x/evm/querier"
 	"github.com/sei-protocol/sei-chain/x/evm/replay"
@@ -128,8 +134,6 @@ import (
 	tokenfactorymodule "github.com/sei-protocol/sei-chain/x/tokenfactory"
 	tokenfactorykeeper "github.com/sei-protocol/sei-chain/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/sei-protocol/sei-chain/x/tokenfactory/types"
-	"github.com/sei-protocol/sei-db/ss"
-	seidb "github.com/sei-protocol/sei-db/ss/types"
 	"github.com/spf13/cast"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmcfg "github.com/tendermint/tendermint/config"
@@ -147,7 +151,7 @@ import (
 
 	// unnamed import of statik for openapi/swagger UI support
 	_ "github.com/sei-protocol/sei-chain/docs/swagger"
-	ssconfig "github.com/sei-protocol/sei-db/config"
+	ssconfig "github.com/sei-protocol/sei-chain/sei-db/config"
 )
 
 // this line is used by starport scaffolding # stargate/wasm/app/enabledProposals
@@ -339,16 +343,19 @@ type App struct {
 	BeginBlockKeepers legacyabci.BeginBlockKeepers
 	EndBlockKeepers   legacyabci.EndBlockKeepers
 	CheckTxKeepers    legacyabci.CheckTxKeepers
+	DeliverTxKeepers  legacyabci.DeliverTxKeepers
 
 	// mm is the module manager
 	mm *module.Manager
+
+	// sm is the simulation manager
+	sm *module.SimulationManager
 
 	configurator module.Configurator
 
 	optimisticProcessingInfo      OptimisticProcessingInfo
 	optimisticProcessingInfoMutex sync.RWMutex
 
-	// batchVerifier *ante.SR25519BatchVerifier
 	txDecoder         sdk.TxDecoder
 	AnteHandler       sdk.AnteHandler
 	TracerAnteHandler sdk.AnteHandler
@@ -364,7 +371,7 @@ type App struct {
 
 	encodingConfig        appparams.EncodingConfig
 	legacyEncodingConfig  appparams.EncodingConfig
-	evmRPCConfig          evmrpc.Config
+	evmRPCConfig          evmrpcconfig.Config
 	lightInvarianceConfig LightInvarianceConfig
 
 	genesisImportConfig genesistypes.GenesisImportConfig
@@ -380,6 +387,9 @@ type App struct {
 	wsServerStartSignalSent   bool
 
 	txPrioritizer sdk.TxPrioritizer
+
+	benchmarkProposalCh <-chan *abci.ResponsePrepareProposal
+	benchmarkLogger     *benchmarkLogger
 }
 
 type AppOption func(*App)
@@ -623,7 +633,7 @@ func New(
 	bApp.SetPreCommitHandler(app.HandlePreCommit)
 	bApp.SetCloseHandler(app.HandleClose)
 
-	app.evmRPCConfig, err = evmrpc.ReadConfig(appOpts)
+	app.evmRPCConfig, err = evmrpcconfig.ReadConfig(appOpts)
 	if err != nil {
 		panic(fmt.Sprintf("error reading EVM config due to %s", err))
 	}
@@ -710,7 +720,7 @@ func New(
 			app.AccountKeeper, app.StakingKeeper, app.BaseApp.DeliverTx,
 			encodingConfig.TxConfig,
 		),
-		auth.NewAppModule(appCodec, app.AccountKeeper),
+		auth.NewAppModule(appCodec, app.AccountKeeper, nil),
 		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
@@ -726,7 +736,7 @@ func New(
 		ibc.NewAppModule(app.IBCKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		oraclemodule.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
-		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper),
+		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		evm.NewAppModule(appCodec, &app.EvmKeeper),
 		transferModule,
 		epochModule,
@@ -758,6 +768,15 @@ func New(
 		BankKeeper:     app.BankKeeper,
 		FeeGrantKeeper: &app.FeeGrantKeeper,
 		IBCKeeper:      app.IBCKeeper,
+		OracleKeeper:   app.OracleKeeper,
+		EvmKeeper:      &app.EvmKeeper,
+		ParamsKeeper:   app.ParamsKeeper,
+		UpgradeKeeper:  &app.UpgradeKeeper,
+	}
+	app.DeliverTxKeepers = legacyabci.DeliverTxKeepers{
+		AccountKeeper:  app.AccountKeeper,
+		BankKeeper:     app.BankKeeper,
+		FeeGrantKeeper: &app.FeeGrantKeeper,
 		OracleKeeper:   app.OracleKeeper,
 		EvmKeeper:      &app.EvmKeeper,
 		ParamsKeeper:   app.ParamsKeeper,
@@ -805,6 +824,29 @@ func New(
 	app.configurator = module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
 	app.mm.RegisterServices(app.configurator)
 
+	// create the simulation manager and define the order of the modules for deterministic simulations
+	app.sm = module.NewSimulationManager(
+		auth.NewAppModule(appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts),
+		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
+		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
+		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
+		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
+		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper),
+		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
+		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
+		params.NewAppModule(app.ParamsKeeper),
+		evidence.NewAppModule(app.EvidenceKeeper),
+		oraclemodule.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
+		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		ibc.NewAppModule(app.IBCKeeper),
+		transferModule,
+		epochModule,
+		tokenfactorymodule.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper),
+		// this line is used by starport scaffolding # stargate/app/appModule
+	)
+	app.sm.RegisterStoreDecoders()
+
 	app.RegisterUpgradeHandlers()
 	app.SetStoreUpgradeHandlers()
 
@@ -820,7 +862,6 @@ func New(
 	app.SetInitChainer(app.InitChainer)
 
 	signModeHandler := encodingConfig.TxConfig.SignModeHandler()
-	// app.batchVerifier = ante.NewSR25519BatchVerifier(app.AccountKeeper, signModeHandler)
 
 	anteHandler, tracerAnteHandler, err := NewAnteHandler(
 		HandlerOptions{
@@ -854,7 +895,16 @@ func New(
 
 	app.SetAnteHandler(anteHandler)
 	app.SetMidBlocker(app.MidBlocker)
-	app.SetPrepareProposalHandler(app.PrepareProposalHandler)
+
+	// benchmarkEnabled is enabled via build flag (make install-bench)
+	if benchmarkEnabled {
+		evmChainID := evmconfig.GetEVMChainID(app.ChainID).Int64()
+		app.InitGenerator(context.Background(), app.ChainID, evmChainID, logger)
+		app.SetPrepareProposalHandler(app.PrepareProposalGeneratorHandler)
+	} else {
+		app.SetPrepareProposalHandler(app.PrepareProposalHandler)
+	}
+
 	app.SetProcessProposalHandler(app.ProcessProposalHandler)
 	app.SetFinalizeBlocker(app.FinalizeBlocker)
 	app.SetInplaceTestnetInitializer(app.inplacetestnetInitializer)
@@ -900,6 +950,7 @@ func New(
 
 	app.txPrioritizer = NewSeiTxPrioritizer(logger, &app.EvmKeeper, &app.UpgradeKeeper, &app.ParamsKeeper).GetTxPriorityHint
 	app.SetTxPrioritizer(app.txPrioritizer)
+
 	return app
 }
 
@@ -1846,6 +1897,11 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper
+}
+
+// SimulationManager implements the SimulationApp interface
+func (app *App) SimulationManager() *module.SimulationManager {
+	return app.sm
 }
 
 func (app *App) BlacklistedAccAddrs() map[string]bool {
