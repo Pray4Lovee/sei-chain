@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"runtime/debug"
+	"sync"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -18,6 +19,8 @@ import (
 	"github.com/ethereum/go-ethereum/export"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/hashicorp/golang-lru/v2/expirable"
+	"github.com/sei-protocol/sei-chain/app/legacyabci"
+	evmrpcconfig "github.com/sei-protocol/sei-chain/evmrpc/config"
 	"github.com/sei-protocol/sei-chain/x/evm/keeper"
 	"github.com/sei-protocol/sei-chain/x/evm/state"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
@@ -60,15 +63,19 @@ type SeiDebugAPI struct {
 func NewDebugAPI(
 	tmClient rpcclient.Client,
 	k *keeper.Keeper,
+	beginBlockKeepers legacyabci.BeginBlockKeepers,
 	ctxProvider func(int64) sdk.Context,
 	txConfigProvider func(int64) client.TxConfig,
 	config *SimulateConfig,
 	app *baseapp.BaseApp,
 	antehandler sdk.AnteHandler,
 	connectionType ConnectionType,
-	debugCfg Config,
+	debugCfg evmrpcconfig.Config,
+	globalBlockCache BlockCache,
+	cacheCreationMutex *sync.Mutex,
+	watermarks *WatermarkManager,
 ) *DebugAPI {
-	backend := NewBackend(ctxProvider, k, txConfigProvider, tmClient, config, app, antehandler)
+	backend := NewBackend(ctxProvider, k, beginBlockKeepers, txConfigProvider, tmClient, config, app, antehandler, globalBlockCache, cacheCreationMutex, watermarks)
 	tracersAPI := tracers.NewAPI(backend)
 	evictCallback := func(key common.Hash, value bool) {}
 	isPanicCache := expirable.NewLRU[common.Hash, bool](IsPanicCacheSize, evictCallback, IsPanicCacheTTL)
@@ -96,15 +103,19 @@ func NewDebugAPI(
 func NewSeiDebugAPI(
 	tmClient rpcclient.Client,
 	k *keeper.Keeper,
+	beginBlockKeepers legacyabci.BeginBlockKeepers,
 	ctxProvider func(int64) sdk.Context,
 	txConfigProvider func(int64) client.TxConfig,
 	config *SimulateConfig,
 	app *baseapp.BaseApp,
 	antehandler sdk.AnteHandler,
 	connectionType ConnectionType,
-	debugCfg Config,
+	debugCfg evmrpcconfig.Config,
+	globalBlockCache BlockCache,
+	cacheCreationMutex *sync.Mutex,
+	watermarks *WatermarkManager,
 ) *SeiDebugAPI {
-	backend := NewBackend(ctxProvider, k, txConfigProvider, tmClient, config, app, antehandler)
+	backend := NewBackend(ctxProvider, k, beginBlockKeepers, txConfigProvider, tmClient, config, app, antehandler, globalBlockCache, cacheCreationMutex, watermarks)
 	tracersAPI := tracers.NewAPI(backend)
 
 	var sem chan struct{}
@@ -141,8 +152,24 @@ func (api *DebugAPI) TraceTransaction(ctx context.Context, hash common.Hash, con
 
 	startTime := time.Now()
 	defer recordMetricsWithError("debug_traceTransaction", api.connectionType, startTime, returnErr)
-	result, returnErr = api.tracersAPI.TraceTransaction(ctx, hash, config)
-	return
+	return api.tracersAPI.TraceTransaction(ctx, hash, config)
+}
+
+func (api *DebugAPI) AsRawJSON(result interface{}) ([]byte, bool) {
+	switch v := result.(type) {
+	case json.RawMessage:
+		return v, true
+	case []byte:
+		return v, true
+	case string:
+		return []byte(v), true
+	default:
+		bz, err := json.Marshal(v)
+		if err != nil {
+			return nil, false
+		}
+		return bz, true
+	}
 }
 
 func (api *SeiDebugAPI) TraceBlockByNumberExcludeTraceFail(ctx context.Context, number rpc.BlockNumber, config *tracers.TraceConfig) (result interface{}, returnErr error) {

@@ -3,7 +3,7 @@ package app
 import (
 	"testing"
 
-	"github.com/sei-protocol/sei-db/config"
+	"github.com/sei-protocol/sei-chain/sei-db/config"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,8 +24,12 @@ func (t TestSeiDBAppOpts) Get(s string) interface{} {
 		return config.DefaultStateCommitConfig().SnapshotInterval
 	case FlagSCSnapshotKeepRecent:
 		return config.DefaultStateCommitConfig().SnapshotKeepRecent
+	case FlagSCSnapshotMinTimeInterval:
+		return config.DefaultStateCommitConfig().SnapshotMinTimeInterval
 	case FlagSCSnapshotWriterLimit:
 		return config.DefaultStateCommitConfig().SnapshotWriterLimit
+	case FlagSCSnapshotPrefetchThreshold:
+		return config.DefaultStateCommitConfig().SnapshotPrefetchThreshold
 	case FlagSSEnable:
 		return config.DefaultStateStoreConfig().Enable
 	case FlagSSBackend:

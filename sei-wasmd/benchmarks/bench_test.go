@@ -4,13 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/syndtr/goleveldb/leveldb/opt"
 
-	abci "github.com/tendermint/tendermint/abci/types"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -104,7 +101,6 @@ func BenchmarkTxSending(b *testing.B) {
 			b.ResetTimer()
 
 			for i := 0; i < b.N/blockSize; i++ {
-				appInfo.App.BeginBlock(appInfo.App.GetContextForDeliverTx([]byte{}), abci.RequestBeginBlock{Header: tmproto.Header{Height: height, Time: time.Now()}})
 
 				for j := 0; j < blockSize; j++ {
 					idx := i*blockSize + j
@@ -117,7 +113,7 @@ func BenchmarkTxSending(b *testing.B) {
 					require.NoError(b, err)
 				}
 
-				appInfo.App.EndBlock(appInfo.App.GetContextForDeliverTx([]byte{}), abci.RequestEndBlock{Height: height})
+				appInfo.App.EndBlock(appInfo.App.GetContextForDeliverTx([]byte{}), height, 0)
 				appInfo.App.SetDeliverStateToCommit()
 				appInfo.App.Commit(context.Background())
 				height++

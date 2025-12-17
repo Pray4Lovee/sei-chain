@@ -5,11 +5,11 @@ import (
 	"math/rand"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
+	seiappparams "github.com/sei-protocol/sei-chain/app/params"
 
 	"github.com/CosmWasm/wasmd/app/params"
 	"github.com/CosmWasm/wasmd/x/wasm/types"
@@ -105,7 +105,7 @@ func SimulateMsgStoreCode(ak types.AccountKeeper, bk simulation.BankKeeper, wasm
 		txCtx := simulation.OperationInput{
 			R:             r,
 			App:           app,
-			TxGen:         simappparams.MakeTestEncodingConfig().TxConfig,
+			TxGen:         seiappparams.MakeEncodingConfig().TxConfig,
 			Cdc:           nil,
 			Msg:           &msg,
 			MsgType:       msg.Type(),
@@ -158,7 +158,7 @@ func SimulateMsgInstantiateContract(ak types.AccountKeeper, bk simulation.BankKe
 		txCtx := simulation.OperationInput{
 			R:             r,
 			App:           app,
-			TxGen:         simappparams.MakeTestEncodingConfig().TxConfig,
+			TxGen:         seiappparams.MakeEncodingConfig().TxConfig,
 			Cdc:           nil,
 			Msg:           &msg,
 			MsgType:       msg.Type(),

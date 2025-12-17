@@ -19,14 +19,14 @@ import (
 )
 
 func TestAddress(t *testing.T) {
-	testApp := app.Setup(false, false, false)
+	testApp := app.Setup(t, false, false, false)
 	p, err := wasmd.NewPrecompile(testApp.GetPrecompileKeepers())
 	require.Nil(t, err)
 	require.Equal(t, "0x0000000000000000000000000000000000001002", p.Address().Hex())
 }
 
 func TestInstantiate(t *testing.T) {
-	testApp := app.Setup(false, false, false)
+	testApp := app.Setup(t, false, false, false)
 	mockAddr, mockEVMAddr := testkeeper.MockAddressPair()
 	ctx := testApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now())
 	ctx = ctx.WithIsEVM(true)
@@ -120,7 +120,7 @@ func TestInstantiate(t *testing.T) {
 }
 
 func TestExecute(t *testing.T) {
-	testApp := app.Setup(false, false, false)
+	testApp := app.Setup(t, false, false, false)
 	mockAddr, mockEVMAddr := testkeeper.MockAddressPair()
 	ctx := testApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now())
 	ctx = ctx.WithIsEVM(true)
@@ -156,7 +156,7 @@ func TestExecute(t *testing.T) {
 	statedb.WithCtx(statedb.Ctx().WithIsEVM(false))
 	testApp.EvmKeeper.SetCode(statedb.Ctx(), mockEVMAddr, []byte{1, 2, 3})
 	res, _, err := p.RunAndCalculateGas(&evm, mockEVMAddr, mockEVMAddr, append(p.GetExecutor().(*wasmd.PrecompileExecutor).ExecuteID, args...), suppliedGas, big.NewInt(1000_000_000_000_000), nil, false, false)
-	require.Equal(t, "sei does not support CW->EVM->CW call pattern", string(res))
+	require.Nil(t, res)
 	require.Equal(t, vm.ErrExecutionReverted, err)
 	statedb.WithCtx(statedb.Ctx().WithIsEVM(true))
 	res, g, err := p.RunAndCalculateGas(&evm, mockEVMAddr, mockEVMAddr, append(p.GetExecutor().(*wasmd.PrecompileExecutor).ExecuteID, args...), suppliedGas, big.NewInt(1000_000_000_000_000), nil, false, false)
@@ -224,7 +224,7 @@ func TestExecute(t *testing.T) {
 }
 
 func TestQuery(t *testing.T) {
-	testApp := app.Setup(false, false, false)
+	testApp := app.Setup(t, false, false, false)
 	mockAddr, mockEVMAddr := testkeeper.MockAddressPair()
 	ctx := testApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now())
 	ctx = ctx.WithIsEVM(true)
@@ -274,7 +274,7 @@ func TestQuery(t *testing.T) {
 }
 
 func TestExecuteBatchOneMessage(t *testing.T) {
-	testApp := app.Setup(false, false, false)
+	testApp := app.Setup(t, false, false, false)
 	mockAddr, mockEVMAddr := testkeeper.MockAddressPair()
 	ctx := testApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now())
 	ctx = ctx.WithIsEVM(true)
@@ -376,7 +376,7 @@ func TestExecuteBatchOneMessage(t *testing.T) {
 }
 
 func TestExecuteBatchValueImmutability(t *testing.T) {
-	testApp := app.Setup(false, false, false)
+	testApp := app.Setup(t, false, false, false)
 	mockAddr, mockEVMAddr := testkeeper.MockAddressPair()
 	ctx := testApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now())
 	ctx = ctx.WithIsEVM(true)
@@ -421,7 +421,7 @@ func TestExecuteBatchValueImmutability(t *testing.T) {
 }
 
 func TestExecuteBatchMultipleMessages(t *testing.T) {
-	testApp := app.Setup(false, false, false)
+	testApp := app.Setup(t, false, false, false)
 	mockAddr, mockEVMAddr := testkeeper.MockAddressPair()
 	ctx := testApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now())
 	ctx = ctx.WithIsEVM(true)

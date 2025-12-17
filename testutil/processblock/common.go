@@ -4,12 +4,13 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/json"
+	"testing"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
@@ -31,9 +32,9 @@ type App struct {
 	lastCtx       sdk.Context
 }
 
-func NewTestApp() *App {
+func NewTestApp(t *testing.T) *App {
 	a := &App{
-		App:           app.Setup(false, false, false),
+		App:           app.Setup(t, false, false, false),
 		height:        1,
 		accToMnemonic: map[string]string{},
 		accToSeqDelta: map[string]uint64{},
@@ -142,12 +143,7 @@ func (a *App) GenerateSignableKey(_ string) (addr sdk.AccAddress) {
 }
 
 func GenerateRandomPubKey() cryptotypes.PubKey {
-	pubBz := make([]byte, secp256k1.PubKeySize)
-	pub := &secp256k1.PubKey{Key: pubBz}
-	if _, err := rand.Read(pub.Key); err != nil {
-		panic(err)
-	}
-	return pub
+	return ed25519.GenPrivKey().PubKey()
 }
 
 func generateRandomStringOfLength(len int) string {
@@ -159,7 +155,7 @@ func generateRandomStringOfLength(len int) string {
 }
 
 func getValAddress(v stakingtypes.Validator) []byte {
-	pub := secp256k1.PubKey{}
+	pub := ed25519.PubKey{}
 	if err := pub.Unmarshal(v.ConsensusPubkey.Value); err != nil {
 		panic(err)
 	}

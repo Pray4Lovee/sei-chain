@@ -3,9 +3,9 @@ package pebbledb
 import (
 	"fmt"
 
+	"github.com/sei-protocol/sei-chain/sei-db/ss/types"
 	"github.com/sei-protocol/sei-chain/tools/hash_verification/hasher"
 	"github.com/sei-protocol/sei-chain/tools/utils"
-	"github.com/sei-protocol/sei-db/ss/types"
 )
 
 type HashScanner struct {
@@ -17,10 +17,7 @@ type HashScanner struct {
 }
 
 func NewHashScanner(db types.StateStore, blocksInterval int64, backfill bool) *HashScanner {
-	latestVersion, err := db.GetLatestVersion()
-	if err != nil {
-		panic(err)
-	}
+	latestVersion := db.GetLatestVersion()
 	fmt.Printf("Detected Pebbledb latest version: %d\n", latestVersion)
 	return &HashScanner{
 		db:             db,

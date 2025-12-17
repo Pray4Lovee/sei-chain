@@ -1,7 +1,8 @@
 const { expect } = require("chai");
 const {isBigNumber} = require("hardhat/common");
 const {uniq, shuffle} = require("lodash");
-const { ethers, upgrades } = require('hardhat');
+const hre = require('hardhat');
+const { ethers, upgrades } = hre;
 const { getImplementationAddress } = require('@openzeppelin/upgrades-core');
 const { deployEvmContract, setupSigners, fundAddress, getCosmosTx, getEvmTx, waitForBaseFeeToEq, waitForBaseFeeToBeGt} = require("./lib")
 const axios = require("axios");
@@ -73,6 +74,8 @@ describe("EVM Test", function () {
     let owner;
     let evmAddr;
     let firstNonce;
+    let loadSigners = [];
+    let loadContracts = [];
 
     // The first contract address deployed from 0xF87A299e6bC7bEba58dbBe5a5Aa21d49bCD16D52
     // should always be 0xbD5d765B226CaEA8507EE030565618dAFFD806e2 when sent with nonce=0
@@ -85,6 +88,7 @@ describe("EVM Test", function () {
       }
       const accounts = await setupSigners(await ethers.getSigners())
       owner = accounts[0].signer;
+      loadSigners = accounts.map((acct) => acct.signer);
       debug(`OWNER = ${owner.address}`)
 
       firstNonce = await ethers.provider.getTransactionCount(owner.address)
@@ -99,6 +103,8 @@ describe("EVM Test", function () {
 
       let tokenAddr = await testToken.getAddress()
       evmAddr = await evmTester.getAddress()
+
+      loadContracts = loadSigners.map((signer) => evmTester.connect(signer));
 
       debug(`Token: ${tokenAddr}, EvmAddr: ${evmAddr}`);
     });
@@ -336,7 +342,7 @@ describe("EVM Test", function () {
         // Call setBoolVar
         await delay()
         const txResponse = await evmTester.setUint256Var(12345, { gasPrice: ethers.parseUnits('100', 'gwei') });
-        await txResponse.wait();  // Wait for the transaction to be mined
+        const receipt = await txResponse.wait();  // Wait for the transaction to be mined
 
         debug(JSON.stringify(txResponse))
 
@@ -346,6 +352,12 @@ describe("EVM Test", function () {
 
         // Verify that addr is set correctly
         expect(await evmTester.uint256Var()).to.equal(12345);
+
+        // Calculate total gas cost
+        const totalGasCost = receipt.gasUsed * receipt.gasPrice;
+        console.log("totalGasCost", totalGasCost);
+        console.log("receipt", receipt);
+        debug(`Total gas cost: ${ethers.formatEther(totalGasCost)} ETH`);
       });
 
       // this uses a newer version of ethers to attempt a blob transaction (different signer wallet)
@@ -990,7 +1002,7 @@ describe("EVM Test", function () {
       it("Should fetch past logs", async function () {
         const contractAddress = await evmTester.getAddress()
         const filter = {
-          fromBlock: 0,
+          fromBlock: 1,
           toBlock: 'latest',
           address: contractAddress
         };
