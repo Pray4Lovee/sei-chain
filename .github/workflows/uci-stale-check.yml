@@ -3,10 +3,10 @@ name: UCI
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 12 * * *'
+    - cron: '0 12 * * *'  # Daily at 12:00 UTC
 
 permissions:
-  contents: read
+  contents: read  # Base permissions for default context
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -14,13 +14,50 @@ concurrency:
 
 jobs:
   stale:
-    name: Stale
+    name: 🧹 UCI Stale Handler
+    runs-on: ubuntu-latest
+
     permissions:
       issues: write
       pull-requests: write
+
     uses: sei-protocol/uci/.github/workflows/stale-check.yml@v0.0.3
+
     with:
       days-before-pr-stale: 28
       days-before-pr-close: 7
       days-before-issue-stale: 30
       days-before-issue-close: 7
+
+    # Protection against upstream failure or silent exit
+    continue-on-error: false
+    timeout-minutes: 10
+
+    # Metadata and traceability
+    env:
+      WORKFLOW_NAME: UCI-Stale-Cleanup
+      INITIATOR: ${{ github.actor }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # Optional conditional to restrict forked repo runs
+    if: github.repository_owner == 'sei-protocol'
+
+    # Traceable step override (if future enhancement required)
+    # steps:
+    #   - name: Trigger Stale Check Workflow
+    #     uses: sei-protocol/uci/.github/workflows/stale-check.yml@v0.0.3
+    #     with:
+    #       days-before-pr-stale: 28
+    #       days-before-pr-close: 7
+    #       days-before-issue-stale: 30
+    #       days-before-issue-close: 7
+
+  matrix-sanity:
+    name: 🔍 Matrix Placeholder
+    runs-on: ubuntu-latest
+    if: false  # Disable by default — use to scale logic per repo type or label later
+    strategy:
+      matrix:
+        type: [issues, prs]
+    steps:
+      - run: echo "Matrix logic placeholder for future workflows."
