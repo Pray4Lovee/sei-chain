@@ -89,6 +89,11 @@ func (app *App) RegisterUpgradeHandlers() {
 				return newVM, err
 			}
 
+			if upgradeName == "evm-only" {
+				app.DisableCosmWasm(ctx)
+				return app.mm.RunMigrations(ctx, app.configurator, fromVM)
+			}
+
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 		})
 	}

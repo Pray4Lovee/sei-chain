@@ -1,0 +1,22 @@
+{
+  "sip": 11,
+  "name": "Codex Final Seal",
+  "description": "Locks GigaDrop state, anchors sovereign verification, and activates Forkproof Codex GigaHash with slashing witness.",
+  "status": "Final",
+  "activation_block": "auto-detect",
+  "giga_hash": "0xSOVEREIGNGIGADROP2026FINAL",
+  "modules": [
+    "CodexDropVerifier",
+    "ForkproofSealVerifier",
+    "BatchSlashingAuditor",
+    "FinalSealRoyaltyEnforcer"
+  ],
+  "royalty_percent": 11.0,
+  "enforce_on": [
+    "sei",
+    "base",
+    "hyperliquid",
+    "polkadot",
+    "evm"
+  ]
+}
