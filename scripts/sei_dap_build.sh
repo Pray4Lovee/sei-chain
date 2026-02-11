@@ -2,6 +2,7 @@
 set -euo pipefail
 
 echo "🔧 Building Sei DAP runtime scaffolds..."
-go build ./cmd/sei-dap ./cmd/sei-soulproof
+go build -o ./sei-dap ./cmd/sei-dap
+go build -o ./sei-soulproof ./cmd/sei-soulproof
 
 echo "✅ Built binaries: ./sei-dap and ./sei-soulproof"
