@@ -1,0 +1,8 @@
+version: SIP-12
+ruleset:
+  description: OmegaGuardian signer gating for CodexFinalSeal
+  require_final_seal_signer: true
+  vault_withdrawal:
+    require_linked_sigil: true
+    require_mirror_hash: true
+    require_entropy_log: true
