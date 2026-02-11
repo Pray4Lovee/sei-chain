@@ -22,6 +22,8 @@ interface IVaultSigilLinkView {
 
 contract VaultWithdrawHook {
     address public admin;
+    address public trustedWithdrawCaller;
+
     IOmegaGuardianProtect public guardian;
     ICodexSigilOwner public sigil;
     IVaultSigilLinkView public vaultSigilLink;
@@ -39,21 +41,41 @@ contract VaultWithdrawHook {
         bytes32 mirrorHash
     );
 
+    event TrustedWithdrawCallerUpdated(address indexed trustedWithdrawCaller);
+
     modifier onlyAdmin() {
         require(msg.sender == admin, "Admin only");
         _;
     }
 
+    modifier onlyTrustedWithdrawCaller() {
+        require(
+            msg.sender == trustedWithdrawCaller,
+            "Unauthorized withdraw caller"
+        );
+        _;
+    }
+
     constructor(
         address adminAddr,
+        address trustedWithdrawCallerAddr,
         address guardianAddr,
         address sigilAddr,
         address vaultSigilLinkAddr
     ) {
         admin = adminAddr;
+        trustedWithdrawCaller = trustedWithdrawCallerAddr;
         guardian = IOmegaGuardianProtect(guardianAddr);
         sigil = ICodexSigilOwner(sigilAddr);
         vaultSigilLink = IVaultSigilLinkView(vaultSigilLinkAddr);
+    }
+
+    function updateTrustedWithdrawCaller(address trustedWithdrawCallerAddr)
+        external
+        onlyAdmin
+    {
+        trustedWithdrawCaller = trustedWithdrawCallerAddr;
+        emit TrustedWithdrawCallerUpdated(trustedWithdrawCallerAddr);
     }
 
     function setProtectionContext(
@@ -71,6 +93,7 @@ contract VaultWithdrawHook {
 
     function onWithdraw(uint256 vaultId, address requester)
         external
+        onlyTrustedWithdrawCaller
         returns (bool)
     {
         uint256 sigilId = vaultSigilLink.vaultToSigil(vaultId);
@@ -78,6 +101,7 @@ contract VaultWithdrawHook {
         require(sigil.ownerOf(sigilId) == requester, "Sigil mismatch");
 
         ProtectionContext memory context = protectionContexts[vaultId];
+
         guardian.prepareProtection(
             vaultId,
             requester,
@@ -86,6 +110,7 @@ contract VaultWithdrawHook {
         );
 
         delete protectionContexts[vaultId];
+
         return guardian.guardian_protect(vaultId);
     }
 }
