@@ -1,0 +1,55 @@
+name: Sanitize Codex metadata on PRs
+
+on:
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize, labeled]
+
+jobs:
+  sanitize_pr:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Remove codex label and Codex session links
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pull_number = context.payload.pull_request.number;
+            const pr = context.payload.pull_request;
+
+            const codexLinkRegex = /https?:\/\/(?:www\.)?chatgpt\.com\/codex\/tasks\/\S+/gi;
+            const cleanedBody = (pr.body || '').replace(codexLinkRegex, '[redacted]').trimEnd();
+
+            if ((pr.body || '') !== cleanedBody) {
+              core.info('Updating PR body to remove Codex session links.');
+              await github.rest.pulls.update({
+                owner,
+                repo,
+                pull_number,
+                body: cleanedBody,
+              });
+            } else {
+              core.info('No Codex session links found in PR body.');
+            }
+
+            const labels = await github.paginate(github.rest.issues.listLabelsOnIssue, {
+              owner,
+              repo,
+              issue_number: pull_number,
+              per_page: 100,
+            });
+
+            const hasCodexLabel = labels.some((l) => (l.name || '').toLowerCase() === 'codex');
+            if (hasCodexLabel) {
+              core.info('Removing codex label from PR.');
+              await github.rest.issues.removeLabel({
+                owner,
+                repo,
+                issue_number: pull_number,
+                name: 'codex',
+              });
+            } else {
+              core.info('No codex label found on PR.');
+            }
