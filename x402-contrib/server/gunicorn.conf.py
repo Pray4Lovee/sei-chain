@@ -1,0 +1,9 @@
+bind = "0.0.0.0:4020"
+workers = 2
+worker_class = "sync"
+timeout = 180
+graceful_timeout = 30
+accesslog = "-"
+errorlog = "-"
+loglevel = "info"
+preload_app = True
