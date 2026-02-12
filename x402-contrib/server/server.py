@@ -155,7 +155,21 @@ def settle():
         tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
         TXS_TOTAL.inc()
         receipt = wait_for_receipt(tx_hash)
-    except (TimeExhausted, Exception):
+    except TimeExhausted:
+        # Tx may already be mined or still propagating; keep broadcasting so
+        # the confirmer can reconcile it later.
+        return (
+            jsonify(
+                {
+                    "status": "broadcasting",
+                    "sessionId": session_id,
+                    "amount_wei": row["amount_wei"],
+                    "tx_hash": tx_hash_hex,
+                }
+            ),
+            202,
+        )
+    except Exception:
         reset_to_pending(session_id)
         raise
     finally:
