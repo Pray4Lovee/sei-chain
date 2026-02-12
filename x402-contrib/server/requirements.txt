@@ -1,0 +1,6 @@
+flask
+web3
+python-dotenv
+gunicorn
+sqlite-utils
+prometheus-client

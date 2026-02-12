@@ -1,0 +1,14 @@
+[Unit]
+Description=x402 settlement service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/x402/server
+EnvironmentFile=/opt/x402/server/.env
+ExecStart=/usr/bin/gunicorn --config /opt/x402/server/gunicorn.conf.py wsgi:application
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

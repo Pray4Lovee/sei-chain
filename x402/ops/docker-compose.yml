@@ -1,0 +1,9 @@
+services:
+  x402:
+    build:
+      context: ../..
+      dockerfile: x402/ops/Dockerfile
+    ports:
+      - "4020:4020"
+    env_file:
+      - ../../x402-contrib/server/.env
