@@ -580,6 +580,7 @@ func TestSyncer_applyChunks_RefetchChunks(t *testing.T) {
 			waitForCondition(t, 2*time.Second, func() bool {
 				return !chunks.Has(1)
 			}, "chunk 1 to be removed")
+			require.True(t, chunks.Has(0))
 			require.False(t, chunks.Has(1))
 			require.True(t, chunks.Has(2))
 
