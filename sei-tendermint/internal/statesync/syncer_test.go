@@ -577,7 +577,9 @@ func TestSyncer_applyChunks_RefetchChunks(t *testing.T) {
 				rts.reactor.syncer.applyChunks(ctx, chunks, fetchStartTime) //nolint:errcheck // purposefully ignore error
 			}()
 
-			waitForChunk(t, chunks, 0, 2*time.Second)
+			waitForCondition(t, 2*time.Second, func() bool {
+				return !chunks.Has(1)
+			}, "chunk 1 to be removed")
 			require.False(t, chunks.Has(1))
 			require.True(t, chunks.Has(2))
 
@@ -750,20 +752,15 @@ func toABCI(s *snapshot) *abci.Snapshot {
 	}
 }
 
-func waitForChunk(
-    t *testing.T,
-    chunks *ChunkStore,
-    index uint32,
-    timeout time.Duration,
-) {
-    t.Helper()
+func waitForCondition(t *testing.T, timeout time.Duration, condition func() bool, conditionDescription string) {
+	t.Helper()
 
-    deadline := time.Now().Add(timeout)
-    for time.Now().Before(deadline) {
-        if chunks.Has(index) {
-            return
-        }
-        time.Sleep(5 * time.Millisecond)
-    }
-    t.Fatalf("chunk %d not received before timeout", index)
+	deadline := time.Now().Add(timeout)
+	for time.Now().Before(deadline) {
+		if condition() {
+			return
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+	t.Fatalf("timed out waiting for %s", conditionDescription)
 }
