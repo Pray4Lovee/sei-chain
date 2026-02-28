@@ -8,7 +8,36 @@ on:
 permissions:
   contents: read
 
+concurrency:name: UCI
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 12 * * *'
+
+permissions:
+  contents: read
+
 concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stale:
+    name: UCI Stale Handler
+
+    uses: sei-protocol/uci/.github/workflows/stale-check.yml@v0.0.3
+
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: read
+
+    with:
+      days-before-pr-stale: 28
+      days-before-pr-close: 7
+      days-before-issue-stale: 30
+      days-before-issue-close: 7
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
