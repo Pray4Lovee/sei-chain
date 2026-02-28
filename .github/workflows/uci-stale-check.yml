@@ -3,11 +3,13 @@ name: UCI
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 12 * * *'  # Daily at 12:00 UTC
+    - cron: '0 12 * * *' # Daily at 12:00 UTC
 
+# Base permissions
 permissions:
-  contents: read  # Base permissions for default context
+  contents: read
 
+# Prevent duplicate runs per branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -15,48 +17,45 @@ concurrency:
 jobs:
   stale:
     name: 🧹 UCI Stale Handler
-    runs-on: ubuntu-latest
 
+    # Only allow official repo execution
+    if: github.repository_owner == 'sei-protocol'
+
+    # Reusable workflow reference
+    uses: sei-protocol/uci/.github/workflows/stale-check.yml@v0.0.3
+
+    # Required elevated permissions for stale bot behavior
     permissions:
       issues: write
       pull-requests: write
+      contents: read
 
-    uses: sei-protocol/uci/.github/workflows/stale-check.yml@v0.0.3
-
+    # Required reusable workflow inputs
+    with:
       days-before-pr-stale: 28
       days-before-pr-close: 7
       days-before-issue-stale: 30
       days-before-issue-close: 7
 
-    # Protection against upstream failure or silent exit
+    # Fail hard if upstream fails
     continue-on-error: false
+
+    # Hard timeout protection
     timeout-minutes: 10
 
-    # Metadata and traceability
+    # Traceability metadata
     env:
       WORKFLOW_NAME: UCI-Stale-Cleanup
       INITIATOR: ${{ github.actor }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # Optional conditional to restrict forked repo runs
-    if: github.repository_owner == 'sei-protocol'
-
-    # Traceable step override (if future enhancement required)
-    # steps:
-    #   - name: Trigger Stale Check Workflow
-    #     uses: sei-protocol/uci/.github/workflows/stale-check.yml@v0.0.3
-    #     with:
-    #       days-before-pr-stale: 28
-    #       days-before-pr-close: 7
-    #       days-before-issue-stale: 30
-    #       days-before-issue-close: 7
-
+  # Reserved expansion slot for future repo scaling logic
   matrix-sanity:
     name: 🔍 Matrix Placeholder
     runs-on: ubuntu-latest
-    if: false  # Disable by default — use to scale logic per repo type or label later
+    if: false
     strategy:
       matrix:
         type: [issues, prs]
     steps:
-      - run: echo "Matrix logic placeholder for future workflows."
+      - name: Placeholder
+        run: echo "Matrix logic placeholder for future workflows."
