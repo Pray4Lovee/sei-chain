@@ -21,9 +21,8 @@ jobs:
       issues: write
       pull-requests: write
 
-    uses: sei-protocol/uci/.github/workflows/stale-check.yml@v0.0.1
+    uses: sei-protocol/uci/.github/workflows/stale-check.yml@v0.0.3
 
-    with:
       days-before-pr-stale: 28
       days-before-pr-close: 7
       days-before-issue-stale: 30
