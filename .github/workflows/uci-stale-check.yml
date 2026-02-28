@@ -5,11 +5,9 @@ on:
   schedule:
     - cron: '0 12 * * *' # Daily at 12:00 UTC
 
-# Base permissions
 permissions:
   contents: read
 
-# Prevent duplicate runs per branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -18,44 +16,17 @@ jobs:
   stale:
     name: 🧹 UCI Stale Handler
 
-    # Only allow official repo execution
     if: github.repository_owner == 'sei-protocol'
 
-    # Reusable workflow reference
     uses: sei-protocol/uci/.github/workflows/stale-check.yml@v0.0.3
 
-    # Required elevated permissions for stale bot behavior
     permissions:
       issues: write
       pull-requests: write
       contents: read
 
-    # Required reusable workflow inputs
     with:
       days-before-pr-stale: 28
       days-before-pr-close: 7
       days-before-issue-stale: 30
       days-before-issue-close: 7
-
-    # Fail hard if upstream fails
-    continue-on-error: false
-
-    # Hard timeout protection
-    timeout-minutes: 10
-
-    # Traceability metadata
-    env:
-      WORKFLOW_NAME: UCI-Stale-Cleanup
-      INITIATOR: ${{ github.actor }}
-
-  # Reserved expansion slot for future repo scaling logic
-  matrix-sanity:
-    name: 🔍 Matrix Placeholder
-    runs-on: ubuntu-latest
-    if: false
-    strategy:
-      matrix:
-        type: [issues, prs]
-    steps:
-      - name: Placeholder
-        run: echo "Matrix logic placeholder for future workflows."
