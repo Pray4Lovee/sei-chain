@@ -3,7 +3,7 @@ name: UCI
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 12 * * *' # Daily at 12:00 UTC
+    - cron: '0 12 * * *'
 
 permissions:
   contents: read
@@ -14,9 +14,7 @@ concurrency:
 
 jobs:
   stale:
-    name: 🧹 UCI Stale Handler
-
-    if: github.repository_owner == 'sei-protocol'
+    name: UCI Stale Handler
 
     uses: sei-protocol/uci/.github/workflows/stale-check.yml@v0.0.3
 
