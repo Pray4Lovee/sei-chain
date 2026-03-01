@@ -1,0 +1,19 @@
+[Unit]
+Description=x402 Settlement Daemon
+After=network.target
+
+[Service]
+User=sei
+WorkingDirectory=/opt/x402
+ExecStart=/opt/x402/x402d
+Restart=always
+RestartSec=5
+Environment=RPC_URL=http://127.0.0.1:8545
+Environment=WS_URL=ws://127.0.0.1:8546
+Environment=SETTLEMENT_PRIVATE_KEY=
+Environment=SETTLEMENT_CONTRACT=
+Environment=PAYOUT_CONTRACT=
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
