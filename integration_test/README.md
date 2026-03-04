@@ -74,3 +74,11 @@ There are some tricks and tips you should know when adding a new test case:
 4. Commands will be executed one by one and will be wrapped within `docker exec -ti`
 5. Chain is keep running and is stateful, so some tests might not be idempotent which is fine
 6. You can define more than one verifier and each one check a different env
+
+## Giga upgrade e2e scripts
+Use the upgrade module scripts for a full end-to-end upgrade flow and stress loops:
+
+- `integration_test/upgrade_module/scripts/giga_upgrade_e2e.sh` runs minor + major upgrade tests in sequence.
+- `integration_test/upgrade_module/scripts/giga_upgrade_stress.sh` runs the full flow repeatedly for stress validation.
+- `integration_test/upgrade_module/scripts/giga_upgrade_script_test.sh` performs quick dry-run and argument-validation checks.
+
