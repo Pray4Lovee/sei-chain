@@ -1,0 +1,4 @@
+target/
+artifacts/*.json
+artifacts/*.md
+artifacts/*.txt

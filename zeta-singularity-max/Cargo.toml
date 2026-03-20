@@ -1,0 +1,14 @@
+[package]
+name = "zeta-singularity-max"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "zeta_singularity_max"
+path = "src/lib.rs"
+
+[[bin]]
+name = "zeta-omega-infinity"
+path = "src/main.rs"
+
+[dependencies]
