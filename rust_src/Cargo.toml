@@ -1,0 +1,11 @@
+[package]
+name = "zeta-kernel"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "zeta_omega_infinity"
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+ed25519-dalek = { version = "1.0.1", features = ["u64_backend"] }
